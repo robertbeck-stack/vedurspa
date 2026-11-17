@@ -79,74 +79,101 @@ const STATIONS = [
   { name: 'Blönduós', fullName: 'Blönduós', obsId: 3317, fcId: 3317, region: 'Norðurland' }
 ];
 
-// Helper to generate 35 days of historical data back from 2026-11-17
-function generateHistory() {
+// Helper to generate full 365 days of realistic meteorological data
+function generateYearHistory() {
   const days = [];
   const baseDate = new Date('2026-11-17T12:00:00Z');
   const dayNames = ['Sun', 'Mán', 'Þri', 'Mið', 'Fim', 'Fös', 'Lau'];
 
-  // 35 realistic meteorological scenarios back in time
-  const sampleScenarios = [
-    { score: 94, regime: 'Kyrrð & stilla', temp: 1.5, wind: 5, status: 'spot_on', why: 'Stöðug hæð. Hiti og vindur hitti beint í mark.' },
-    { score: 91, regime: 'Kuldakast', temp: -3.9, wind: 7, status: 'spot_on', why: 'Norðanátt og frost. Mjög gott samræmi líkana.' },
-    { score: 90, regime: 'Kuldakast', temp: -6.3, wind: 4, status: 'spot_on', why: 'Heiðskírt og stillt. Hiti spáður innan 0.6°C.' },
-    { score: 88, regime: 'Kyrrð & stilla', temp: -2.4, wind: 3, status: 'spot_on', why: 'Lítilsháttar hitasveifla í dölum en heildarspá frábær.' },
-    { score: 92, regime: 'Kuldakast', temp: -1.2, wind: 6, status: 'spot_on', why: 'Jafnt og öruggt vetrarveður.' },
-    { score: 58, regime: 'Djúp lægð (Stormur)', temp: 4.8, wind: 19, status: 'failed', why: 'KLIKKAÐI: Lægðarbrautin fór 150 km norðar. Mesta hviða vanmetin um 9 m/s.' },
-    { score: 64, regime: 'Djúp lægð (Stormur)', temp: 3.2, wind: 16, status: 'moderate_error', why: 'KLIKKAÐI: Veðraskil gengu yfir 4 klst. fyrr en spáð var.' },
-    { score: 86, regime: 'Mild suðlæg átt', temp: 5.4, wind: 9, status: 'minor_error', why: 'Úrkoma var meiri en líkön reiknuðu en hiti réttur.' },
-    { score: 93, regime: 'Kyrrð & stilla', temp: 2.1, wind: 4, status: 'spot_on', why: 'Hægviðri og skýjað. Nánast engin skekkja.' },
-    { score: 51, regime: 'Umhleypingar (0°C)', temp: 0.2, wind: 12, status: 'failed', why: 'KLIKKAÐI: Núllpunktsgildran! Spáði rigningu en varð 15 cm snjóbylur við 0°C.' },
-    { score: 69, regime: 'Umhleypingar (0°C)', temp: -0.5, wind: 10, status: 'moderate_error', why: 'KLIKKAÐI: Hitaskekkja 1.8°C breytti slyddu í hált svell.' },
-    { score: 84, regime: 'Mild suðlæg átt', temp: 6.2, wind: 8, status: 'minor_error', why: 'Gott samræmi í hita, vindur örlítið vanmetinn.' },
-    { score: 95, regime: 'Kyrrð & stilla', temp: 1.0, wind: 3, status: 'spot_on', why: 'Stöðugt háþrýstisvæði. Spáin fullkomin í 48 klst.' },
-    { score: 96, regime: 'Kyrrð & stilla', temp: 0.5, wind: 2, status: 'spot_on', why: 'Spálíkön voru 100% sammála.' },
-    { score: 91, regime: 'Kuldakast', temp: -4.5, wind: 5, status: 'spot_on', why: 'Kalt heimskautaloft. Hitaspá mjög nákvæm.' },
-    { score: 89, regime: 'Kuldakast', temp: -5.1, wind: 6, status: 'spot_on', why: 'Litlar skekkjur í éljasöfnun en vindur réttur.' },
-    { score: 54, regime: 'Djúp lægð (Stormur)', temp: 2.8, wind: 22, status: 'failed', why: 'KLIKKAÐI: Óvænt smálægð myndaðist við suðurströndina. Stormhviður vanmetnar.' },
-    { score: 62, regime: 'Djúp lægð (Stormur)', temp: 3.5, wind: 18, status: 'moderate_error', why: 'KLIKKAÐI: Tímasetning hámarksvinds skeikaði um 5 klukkustundir.' },
-    { score: 83, regime: 'Mild suðlæg átt', temp: 7.0, wind: 11, status: 'minor_error', why: 'Hlýr loftmassi, hiti hitti vel en úrkoma skeikaði.' },
-    { score: 88, regime: 'Mild suðlæg átt', temp: 5.8, wind: 8, status: 'minor_error', why: 'Góð spá.' },
-    { score: 94, regime: 'Kyrrð & stilla', temp: 3.1, wind: 3, status: 'spot_on', why: 'Hægviðri og bjartviðri.' },
-    { score: 92, regime: 'Kyrrð & stilla', temp: 2.4, wind: 4, status: 'spot_on', why: 'Mjög lítil skekkja.' },
-    { score: 49, regime: 'Umhleypingar (0°C)', temp: -0.2, wind: 13, status: 'failed', why: 'VERSTI DAGURINN: Spáði 3°C hláku en kólnaði niður í 0°C með snjókomu.' },
-    { score: 71, regime: 'Umhleypingar (0°C)', temp: 0.8, wind: 11, status: 'moderate_error', why: 'KLIKKAÐI: Óvissa í úrkomuformi (snjór/slydda).' },
-    { score: 85, regime: 'Kuldakast', temp: -2.0, wind: 8, status: 'minor_error', why: 'Góð spá en éljagangur á Norðurlandi vanmetinn.' },
-    { score: 90, regime: 'Kuldakast', temp: -3.8, wind: 7, status: 'spot_on', why: 'Kalt og stillt.' },
-    { score: 95, regime: 'Kyrrð & stilla', temp: -1.0, wind: 3, status: 'spot_on', why: 'Fullkomin spá.' },
-    { score: 97, regime: 'Kyrrð & stilla', temp: 0.2, wind: 2, status: 'spot_on', why: 'BESTI DAGURINN: Allir þættir innan við 0.2°C og 0.5 m/s skekkju.' },
-    { score: 93, regime: 'Kyrrð & stilla', temp: 1.4, wind: 4, status: 'spot_on', why: 'Hæð yfir landinu.' },
-    { score: 88, regime: 'Mild suðlæg átt', temp: 6.5, wind: 10, status: 'minor_error', why: 'Sæmileg spá.' },
-    { score: 61, regime: 'Djúp lægð (Stormur)', temp: 5.0, wind: 20, status: 'failed', why: 'KLIKKAÐI: Hviður fóru í 35 m/s á Kjalarnesi en var spáð 24 m/s.' },
-    { score: 77, regime: 'Mild suðlæg átt', temp: 4.2, wind: 12, status: 'minor_error', why: 'Rigning og vindur að ganga niður.' },
-    { score: 89, regime: 'Kuldakast', temp: -1.5, wind: 6, status: 'spot_on', why: 'Góð spá.' },
-    { score: 92, regime: 'Kuldakast', temp: -3.0, wind: 5, status: 'spot_on', why: 'Góð spá.' },
-    { score: 96, regime: 'Kyrrð & stilla', temp: -2.2, wind: 3, status: 'spot_on', why: 'Frábær spá.' }
+  let seed = 12345;
+  function rnd() {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  }
+
+  const regimesMeta = [
+    { name: 'Kyrrð & hæð', minS: 91, maxS: 98, why: 'Stöðug hæð yfir landinu. Hiti og vindur hitti beint í mark.' },
+    { name: 'Kuldakast úr norðri', minS: 86, maxS: 94, why: 'Kaldur og jafn loftmassi. Mjög gott samræmi líkana.' },
+    { name: 'Mild suðlæg átt', minS: 78, maxS: 88, why: 'Rigning og hlýindi. Hiti góður en úrkomumagn sveiflaðist.' },
+    { name: 'Djúp lægð (Stormur)', minS: 52, maxS: 68, why: 'KLIKKAÐI: Lægðarbraut sveiflaðist og vindhviður voru vanmetnar.' },
+    { name: 'Umhleypingar (0°C)', minS: 44, maxS: 59, why: 'KLIKKAÐI: Núllpunktsgildran: Lítill hitamunur breytti rigningu í snjókomu.' }
   ];
 
-  for (let i = 0; i < 35; i++) {
+  let currentRegime = 0;
+  let regimeDaysLeft = 0;
+
+  for (let i = 0; i < 365; i++) {
     const d = new Date(baseDate.getTime() - i * 24 * 60 * 60 * 1000);
     const dateStr = d.toISOString().slice(0, 10);
     const dayOfWeek = dayNames[d.getDay()];
-    const sc = sampleScenarios[i % sampleScenarios.length];
+    const month = d.getMonth() + 1;
+
+    const isSummer = month >= 6 && month <= 8;
+    const isWinter = month === 11 || month === 12 || month <= 3;
+
+    if (regimeDaysLeft <= 0) {
+      const r = rnd();
+      if (isSummer) {
+        currentRegime = r < 0.58 ? 0 : r < 0.78 ? 2 : r < 0.92 ? 1 : r < 0.98 ? 3 : 4;
+      } else if (isWinter) {
+        currentRegime = r < 0.26 ? 0 : r < 0.56 ? 1 : r < 0.70 ? 2 : r < 0.86 ? 3 : 4;
+      } else {
+        currentRegime = r < 0.38 ? 0 : r < 0.60 ? 1 : r < 0.78 ? 2 : r < 0.90 ? 3 : 4;
+      }
+      regimeDaysLeft = (currentRegime <= 1) ? Math.floor(4 + rnd() * 6) : Math.floor(1 + rnd() * 3);
+    }
+
+    const reg = regimesMeta[currentRegime];
+    const score = Math.round(reg.minS + rnd() * (reg.maxS - reg.minS));
+    regimeDaysLeft--;
+
+    let actualTemp = 2.0;
+    if (currentRegime === 0) actualTemp = isSummer ? 14.5 : isWinter ? -4.5 : 4.0;
+    else if (currentRegime === 1) actualTemp = isSummer ? 6.5 : isWinter ? -7.5 : -1.5;
+    else if (currentRegime === 2) actualTemp = isSummer ? 12.0 : isWinter ? 5.5 : 7.0;
+    else if (currentRegime === 3) actualTemp = isSummer ? 9.0 : isWinter ? 2.5 : 4.5;
+    else if (currentRegime === 4) actualTemp = -0.2 + (rnd() * 0.8 - 0.4);
+
+    actualTemp = Math.round(actualTemp * 10) / 10;
+    const actualWind = Math.round((currentRegime === 3 ? 18 + rnd() * 8 : currentRegime === 0 ? 2 + rnd() * 3 : 5 + rnd() * 6) * 10) / 10;
 
     days.push({
       dateStr,
       dayOfWeek,
       daysAgo: i,
-      accuracy: sc.score,
-      regime: sc.regime,
-      actualTemp: sc.temp,
-      actualWind: sc.wind,
-      status: sc.status,
-      why: sc.why
+      month,
+      accuracy: score,
+      regime: reg.name,
+      actualTemp,
+      actualWind,
+      status: score >= 90 ? 'spot_on' : score >= 75 ? 'minor_error' : score >= 60 ? 'moderate_error' : 'failed',
+      why: reg.why
     });
   }
 
   return days;
 }
 
-const HISTORICAL_DATA = generateHistory();
+const HISTORICAL_DATA = generateYearHistory();
+
+// Calculate Monthly Statistics
+const MONTH_NAMES = ['', 'Janúar', 'Febrúar', 'Mars', 'Apríl', 'Maí', 'Júní', 'Júlí', 'Ágúst', 'September', 'Október', 'Nóvember', 'Desember'];
+const MONTHLY_STATS = [];
+for (let m = 1; m <= 12; m++) {
+  const mDays = HISTORICAL_DATA.filter(d => d.month === m);
+  if (mDays.length > 0) {
+    const avg = Math.round(mDays.reduce((a, b) => a + b.accuracy, 0) / mDays.length);
+    const stormDays = mDays.filter(d => d.accuracy < 65).length;
+    MONTHLY_STATS.push({
+      monthNum: m,
+      monthName: MONTH_NAMES[m],
+      daysCount: mDays.length,
+      avgAccuracy: avg,
+      stormDays,
+      season: (m >= 6 && m <= 8) ? 'Sumar' : (m >= 9 && m <= 11) ? 'Haust' : (m === 12 || m <= 2) ? 'Vetur' : 'Vor'
+    });
+  }
+}
 
 const PATTERNS_ANALYSIS = {
   regimes: [
@@ -154,25 +181,25 @@ const PATTERNS_ANALYSIS = {
       name: 'Kyrrð & stillt háþrýstingur',
       icon: '☀️',
       avgAccuracy: 95,
-      frequencyPct: 32,
+      frequencyPct: 34,
       verdict: 'HÉR ER SPÁIN Á ALLRA BESTA RÓLI',
-      description: 'Líkön hitta nánast alltaf rétt (innan við 0.5°C og 1 m/s skekkja). Hæðir hreyfast hægt og auðvelt að reikna.',
+      description: 'Líkön hitta nánast alltaf rétt (innan við 0.5°C og 1 m/s skekkja). Hæðir hreyfast hægt og auðvelt er að reikna þær.',
       color: '#10b981'
     },
     {
       name: 'Stöðug kuldaköst úr norðri',
       icon: '❄️',
       avgAccuracy: 89,
-      frequencyPct: 24,
+      frequencyPct: 25,
       verdict: 'MJÖG GÓÐ NÁKVÆMNI',
-      description: 'Gott samræmi í hita og frosti. Eina skekkjan er nákvæm tímasetning staðbundinna élja við ströndina.',
+      description: 'Gott samræmi í hita og frosti. Eina skekkjan er nákvæm tímasetning og staðsetning élja við norðurströndina.',
       color: '#38bdf8'
     },
     {
       name: 'Mild suðlæg átt & úrkoma',
       icon: '🌦️',
       avgAccuracy: 84,
-      frequencyPct: 20,
+      frequencyPct: 21,
       verdict: 'VIÐUNANDI EN ÚRKOMUMAGN SVEIFLAST',
       description: 'Hiti hittir yfirleitt vel, en magnið af rigningu og vindstrengir undir fjöllum eru oft vanmetnir.',
       color: '#fbbf24'
@@ -181,7 +208,7 @@ const PATTERNS_ANALYSIS = {
       name: 'Djúpar lægðir & stormar',
       icon: '🌪️',
       avgAccuracy: 61,
-      frequencyPct: 14,
+      frequencyPct: 12,
       verdict: 'KLIKKAR OFT Á TÍMASETNINGU & HVIÐUM',
       description: 'Lægðarbrautir geta hnikað til um 100–200 km sem breytir öllu. Mestar vindhviður eru oft vanmetnar um 5–10 m/s.',
       color: '#f97316'
@@ -190,7 +217,7 @@ const PATTERNS_ANALYSIS = {
       name: 'Umhleypingar um frostmark (0°C)',
       icon: '⚠️',
       avgAccuracy: 51,
-      frequencyPct: 10,
+      frequencyPct: 8,
       verdict: 'KLIKKAR MEST Á ÍSLANDI (NÚLLPUNKTURINN)',
       description: 'Erfiðasta veðurástandið: Ef hitinn skeikar um aðeins 1°C breytist spáð rigning í stórsnjókomu eða svell. Líkön eiga í miklum erfiðleikum með þennan fasa.',
       color: '#f43f5e'
@@ -284,7 +311,6 @@ export async function GET(request: Request) {
       weatherIcon = 'rain';
     }
 
-    // Lead-time cards with detailed breakdown of what is failing (Hiti vs Vindur vs Úrkoma)
     const leadTimes = [
       {
         leadDays: 0,
@@ -403,7 +429,6 @@ export async function GET(request: Request) {
     });
   }
 
-  // Upcoming days stability
   const upcomingForecast = [
     {
       dateStr: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -455,6 +480,7 @@ export async function GET(request: Request) {
     verificationDays,
     upcomingForecast,
     historicalData: HISTORICAL_DATA,
+    monthlyStats: MONTHLY_STATS,
     patternsAnalysis: PATTERNS_ANALYSIS
   });
 }
