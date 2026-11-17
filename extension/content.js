@@ -4,47 +4,52 @@
 // =========================================================================
 
 (function initVedurvaktin() {
-  let lastInjectedUrl = '';
+  let lastInjectedKey = '';
   let isFetching = false;
 
-  async function tryInjectCard() {
+  async function checkAndInject() {
     const currentUrl = window.location.href;
     
-    // Athuga hvort við höfum þegar sprautað inn fyrir þessa slóð
+    // Finna hvort við séum á forsíðu eða stöðvasíðu (t.d. /spar/1/ eða /spar/3471/)
+    const idMatch = currentUrl.match(/\/(\d{1,5})(\/|\?|#|$)/);
+    const stationId = idMatch ? idMatch[1] : '';
+    const pageTitle = document.title || '';
+    const currentKey = `${currentUrl}|${stationId}|${pageTitle}`;
+
+    // Athuga hvort spjaldið sé þegar til staðar í DOM fyrir núverandi stöð
     const existingWidget = document.getElementById('vedurvaktin-ext-widget');
-    if (existingWidget && lastInjectedUrl === currentUrl) {
+    if (existingWidget && lastInjectedKey === currentKey) {
       return;
     }
 
     if (isFetching) return;
 
-    // 1. Finna hvar veðurtaflan eða aðalefnið er í DOM
-    // Á vedur.is (Next.js) er veðurtaflan <table> eða inni í #readContentWeatherDetails
-    const targetElement = 
+    // Finna heppilegan stað til að sprauta spjaldinu
+    // Á stöðvasíðum (/vedur/spar/1/ og /vedur/spar/3471/):
+    // 1. div[role="radiogroup"] (hnappastika fyrir dagana rétt fyrir ofan töfluna)
+    // 2. table (veðurtaflan sjálf)
+    // 3. h3 eða h4 fyrirsagnir
+    // Á forsíðu eða eldri síðum:
+    // 4. #page, main, .content
+    const target = 
+      document.querySelector('div[role="radiogroup"]') ||
       document.querySelector('table') ||
       document.querySelector('#readContentWeatherDetails') ||
-      document.querySelector('.table-responsive') || 
-      document.querySelector('#station-table') ||
-      document.querySelector('#forecast-table') ||
-      document.querySelector('.forecast-day-wrapper');
+      document.querySelector('#page') ||
+      document.querySelector('main') ||
+      document.querySelector('.content') ||
+      document.querySelector('#__next');
 
-    if (!targetElement) {
-      // Taflan er enn að hlaðast í Next.js SPA, reynum aftur þegar hún birtist
+    if (!target) {
+      // Síðan er líklega enn að hlaðast í Next.js, bíðum eftir næsta tékki
       return;
     }
 
-    // 2. Finna staðarheiti eða stöðvarnúmer úr URL eða titli síðu
-    const idMatch = currentUrl.match(/\/(\d{1,5})(\/|\?|#|$)/);
-    const stationId = idMatch ? idMatch[1] : '';
-    const pageTitle = document.title || '';
-    const heading = document.querySelector('h1, h2, h3, h4');
-    const headingText = heading ? heading.innerText.trim() : '';
-
     isFetching = true;
     try {
-      console.log('[Veðurvaktin AI] Sæki AI-spá fyrir:', currentUrl, 'Stöð ID:', stationId || 'sjálfvirkt');
+      console.log('[Veðurvaktin AI] Sæki AI-gögn fyrir:', currentUrl, 'Stöð:', stationId || pageTitle);
       
-      const apiUrl = `https://vedurspa-eta.vercel.app/api/extension?url=${encodeURIComponent(currentUrl)}&station=${encodeURIComponent(stationId)}&name=${encodeURIComponent(pageTitle || headingText)}`;
+      const apiUrl = `https://vedurspa-eta.vercel.app/api/extension?url=${encodeURIComponent(currentUrl)}&station=${encodeURIComponent(stationId)}&name=${encodeURIComponent(pageTitle)}`;
       const res = await fetch(apiUrl);
       if (!res.ok) {
         isFetching = false;
@@ -57,9 +62,9 @@
         return;
       }
 
-      // Fjarlægja gamalt spjald ef það er til
-      const oldContainer = document.getElementById('vedurvaktin-ext-container');
-      if (oldContainer) oldContainer.remove();
+      // Fjarlægja gamalt spjald ef það er til staðar
+      const old = document.getElementById('vedurvaktin-ext-container');
+      if (old) old.remove();
 
       // Búa til nýjan kassa utan um spjaldið
       const container = document.createElement('div');
@@ -70,30 +75,35 @@
       container.style.boxSizing = 'border-box';
       container.innerHTML = data.extensionHtml;
 
-      // Finna réttan stað til að sprauta: fyrir ofan töfluna
-      const insertTarget = targetElement.closest('section') || 
-                           targetElement.closest('[class*="_1br7ayeb"]') || 
-                           targetElement.closest('.table-responsive') || 
-                           targetElement;
+      // Sprauta fyrir ofan markstakið
+      let insertPoint = target;
+      if (target.matches('table')) {
+        insertPoint = target.closest('div') || target;
+      } else if (target.matches('div[role="radiogroup"]')) {
+        insertPoint = target.closest('div') || target;
+      }
 
-      if (insertTarget && insertTarget.parentNode) {
-        insertTarget.parentNode.insertBefore(container, insertTarget);
-        lastInjectedUrl = currentUrl;
-        console.log(`[Veðurvaktin AI] AI-korti sprautað inn fyrir ${data.station?.name || 'veðurstöð'}!`);
+      if (insertPoint && insertPoint.parentNode) {
+        insertPoint.parentNode.insertBefore(container, insertPoint);
+        lastInjectedKey = currentKey;
+        console.log(`[Veðurvaktin AI] AI-veðurkorti sprautað inn fyrir ${data.station?.name || 'stöð'}!`);
+      } else if (document.body) {
+        document.body.prepend(container);
+        lastInjectedKey = currentKey;
       }
     } catch (err) {
-      console.error('[Veðurvaktin AI] Villa við að sprauta gögnum:', err);
+      console.error('[Veðurvaktin AI] Villa við að sækja eða sprauta spjaldi:', err);
     } finally {
       isFetching = false;
     }
   }
 
-  // Reyna strax
-  tryInjectCard();
+  // 1. Keyra strax
+  checkAndInject();
 
-  // Fylgjast með DOM breytingum (vegna þess að vedur.is notar Next.js sem hleður töflum ósamstillt)
+  // 2. Fylgjast með DOM breytingum (vegna þess að vedur.is notar Next.js sem hleður töflum ósamstillt)
   const observer = new MutationObserver(() => {
-    tryInjectCard();
+    checkAndInject();
   });
 
   if (document.body) {
@@ -104,12 +114,6 @@
     });
   }
 
-  // Fylgjast með slóðabreytingum ef notandi smellir milli stöðva án endurhleðslu
-  let currentHref = window.location.href;
-  setInterval(() => {
-    if (window.location.href !== currentHref) {
-      currentHref = window.location.href;
-      tryInjectCard();
-    }
-  }, 400);
+  // 3. Reglulegt tékk á 600ms fresti (grípur öll SPA slóðaskipti og flakk milli stöðva á vedur.is)
+  setInterval(checkAndInject, 600);
 })();
