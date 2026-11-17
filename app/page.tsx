@@ -177,6 +177,7 @@ export default function Home() {
     st.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const activeStation = data?.station || { name: 'Allt landið', fullName: 'Allt landið (Landsyfirlit)', region: 'Ísland allt' };
+  const regionStations = stations.filter((st: any) => st.obsId !== 0 && st.region === activeStation.region);
   const verificationDays = data?.verificationDays || [];
   const currentDay = verificationDays[selectedDayIndex] || verificationDays[0];
   const upcomingForecast = data?.upcomingForecast || [];
@@ -262,8 +263,8 @@ export default function Home() {
     const pathWind = points.reduce((acc, p, i) => i === 0 ? `M ${p.x} ${p.yWind}` : `${acc} L ${p.x} ${p.yWind}`, '');
 
     return (
-      <div style={{ position: 'relative', width: '100%', overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', minWidth: '600px', height: 'auto', display: 'block' }}>
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
           <line x1={padX} y1={padY} x2={chartW - padX} y2={padY} stroke="rgba(0,0,0,0.08)" strokeDasharray="3 3" />
           <text x={padX - 8} y={padY + 4} fill="var(--text-dim)" fontSize="9" textAnchor="end">Mikil villa</text>
           
@@ -379,8 +380,8 @@ export default function Home() {
     });
 
     return (
-      <div style={{ width: '100%', overflowX: 'auto', background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.85rem 0.5rem', boxShadow: 'var(--shadow-sm)' }}>
-        <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', minWidth: '780px', height: 'auto', display: 'block' }}>
+      <div style={{ width: '100%', overflow: 'hidden', background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.85rem 0.5rem', boxShadow: 'var(--shadow-sm)' }}>
+        <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
           
           {/* Month vertical grid lines and column backgrounds */}
           {monthMarkers.map((m, mIdx) => {
@@ -795,6 +796,34 @@ export default function Home() {
             </a>
           </div>
         </div>
+
+        {/* Secondary Station Row: Direct station pills for active region, wrapping naturally without scrollbars */}
+        <div style={{ background: 'rgba(0,0,0,0.15)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '0.35rem 0.5rem' }}>
+          <div style={{ width: '96%', maxWidth: '1760px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+              {selectedStationId === 0 ? 'Veðurstöðvar:' : `Stöðvar á ${activeStation.region}:`}
+            </span>
+            {(selectedStationId === 0 ? stations.filter((s: any) => s.obsId !== 0) : regionStations).map((st: any) => (
+              <button
+                key={st.obsId}
+                onClick={() => setSelectedStationId(st.obsId)}
+                style={{
+                  background: selectedStationId === st.obsId ? '#ffffff' : 'rgba(255,255,255,0.15)',
+                  color: selectedStationId === st.obsId ? 'var(--navy-primary)' : '#ffffff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '0.2rem 0.6rem',
+                  fontSize: '0.75rem',
+                  fontWeight: selectedStationId === st.obsId ? 750 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {st.name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Main Container */}
@@ -819,7 +848,7 @@ export default function Home() {
 
           {/* Day Selectors if in verification mode (matching vedur.is day pills) */}
           {viewMode === 'verification' && (
-            <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>
                 Fyrirvari dagsins:
               </span>
