@@ -67,10 +67,12 @@ const REGIONS_DATA = [
 
 const STATIONS = [
   { name: 'Allt landið', fullName: 'Allt landið (Landsyfirlit)', obsId: 0, fcId: 0, region: 'Ísland allt' },
-  { name: 'Reykjavík', fullName: 'Reykjavík (Bústaðav.)', obsId: 1475, fcId: 1475, region: 'Höfuðborgarsvæðið' },
+  { name: 'Reykjavík', fullName: 'Reykjavík (Bústaðav.)', obsId: 1, fcId: 1, region: 'Höfuðborgarsvæðið' },
   { name: 'Akureyri', fullName: 'Akureyri (Krossanesb.)', obsId: 3471, fcId: 3471, region: 'Norðurland' },
-  { name: 'Egilsstaðir', fullName: 'Egilsstaðaflugvöllur', obsId: 4271, fcId: 571, region: 'Austurland' },
-  { name: 'Ísafjörður', fullName: 'Ísafjörður Tungudalur', obsId: 2644, fcId: 2644, region: 'Vestfirðir' },
+  { name: 'Egilsstaðir', fullName: 'Egilsstaðaflugvöllur', obsId: 422, fcId: 422, region: 'Austurland' },
+  { name: 'Ísafjörður', fullName: 'Ísafjörður (Bolungarvík)', obsId: 2642, fcId: 2642, region: 'Vestfirðir' },
+  { name: 'Kirkjubæjarklaustur', fullName: 'Kirkjubæjarklaustur & Eyjafjöll', obsId: 6100, fcId: 6100, region: 'Suðurland' },
+  { name: 'Stykkishólmur', fullName: 'Stykkishólmur (Snæfellsnes)', obsId: 1475, fcId: 1475, region: 'Vesturland' },
   { name: 'Vestmannaeyjar', fullName: 'Vestmannaeyjabær', obsId: 6015, fcId: 6015, region: 'Suðurland' },
   { name: 'Höfn', fullName: 'Höfn í Hornafirði', obsId: 5544, fcId: 5544, region: 'Suðausturland' },
   { name: 'Selfoss', fullName: 'Selfoss', obsId: 6300, fcId: 6300, region: 'Suðurland' },
@@ -539,8 +541,8 @@ export async function GET(request: Request) {
           confidence: '70% (Góður stuðningur)'
         }
       ];
-    } else if (oId === 3471) {
-      // AKUREYRI / NORÐURLAND
+    } else if (oId === 3471 || oId === 3433 || oId === 3696 || oId === 3317) {
+      // AKUREYRI / NORÐURLAND (Sauðárkrókur, Húsavík, Blönduós)
       return [
         {
           dateStr: d1Str,
@@ -595,8 +597,8 @@ export async function GET(request: Request) {
           confidence: '68% (Langtímaspá)'
         }
       ];
-    } else if (oId === 6100) {
-      // KIRKJUBÆJARKLAUSTUR / SUÐURLAND & ÖRÆFI
+    } else if (oId === 6100 || oId === 6015 || oId === 6300 || oId === 5544) {
+      // KIRKJUBÆJARKLAUSTUR / SUÐURLAND & ÖRÆFI (Eyjar, Selfoss, Höfn)
       return [
         {
           dateStr: d1Str,
@@ -651,8 +653,8 @@ export async function GET(request: Request) {
           confidence: '72% (Góður áreiðanleiki)'
         }
       ];
-    } else if (oId === 2642) {
-      // BOLUNGARVÍK / VESTFIRÐIR
+    } else if (oId === 2642 || oId === 2644) {
+      // BOLUNGARVÍK / VESTFIRÐIR (Ísafjörður)
       return [
         {
           dateStr: d1Str,
@@ -707,7 +709,7 @@ export async function GET(request: Request) {
           confidence: '69% (Gildi fyrir vaktstöðvar)'
         }
       ];
-    } else if (oId === 422) {
+    } else if (oId === 422 || oId === 4271) {
       // EGILSSTAÐIR / AUSTURLAND
       return [
         {

@@ -513,16 +513,14 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
       
-      {/* 1. Official Vedur.is Top Utility Bar */}
+      {/* 1. Top Utility Bar */}
       <div className="vedur-utility-bar">
         <div className="vedur-utility-content">
           <div className="vedur-utility-links">
-            <span style={{ fontWeight: 700, color: 'var(--navy-primary)' }}>Veðurstofa Íslands</span>
+            <span style={{ fontWeight: 700, color: 'var(--navy-primary)' }}>Veðurvaktin</span>
             <span style={{ color: 'var(--border-color)' }}>|</span>
-            <a href="https://www.vedur.is" target="_blank" rel="noreferrer" className="vedur-utility-link">Þjónusta og rannsóknir</a>
-            <a href="https://www.vedur.is" target="_blank" rel="noreferrer" className="vedur-utility-link vedur-utility-pill">vedur.is</a>
-            <a href="https://timarit.is" target="_blank" rel="noreferrer" className="vedur-utility-link">Eldri vefur</a>
-            <a href="#" onClick={(e) => e.preventDefault()} className="vedur-utility-link">EN</a>
+            <span className="vedur-utility-pill">Samanburður & AI-Spá</span>
+            <span style={{ color: 'var(--text-muted)' }}>Mælingar vs. Spálíkön</span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -537,20 +535,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. Official Vedur.is Main Site Header */}
+      {/* 2. Main Site Header (matching design, typography & icon layout) */}
       <header className="vedur-header">
         <div className="vedur-header-main">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             {/* Logo */}
-            <a href="#" onClick={(e) => e.preventDefault()} className="vedur-logo-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 80 80" fill="#0f4678" aria-label="Veðurstofa Íslands logo">
+            <div className="vedur-logo-wrap" style={{ cursor: 'pointer' }} onClick={() => setViewMode('verification')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 80 80" fill="#0f4678" aria-label="Veðurspá merki">
                 <path d="M48.8877 18.0154L31.0909 35.8016V0.240051L48.8877 18.0154ZM17.7754 31.3309L0 49.1277H35.5615L17.7754 31.3309ZM31.0909 62.4218L48.8877 80.2401V44.6893L31.0909 62.4218ZM62.1817 49.1277L80 31.3309H44.4492L62.1817 49.1277Z"></path>
               </svg>
               <div>
-                <div className="vedur-logo-title">Veðurstofa Íslands</div>
-                <div className="vedur-logo-subtitle">Veður, loftslag, haffræði, jarðvá og vatnafar</div>
+                <div className="vedur-logo-title">Veðurvaktin</div>
+                <div className="vedur-logo-subtitle">Samanburður á spám og raunmælingum • AI-Leiðrétting</div>
               </div>
-            </a>
+            </div>
 
             {/* Pill Search */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -569,9 +567,7 @@ export default function Home() {
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('aiForecast'); }} className={`vedur-nav-item ${viewMode === 'aiForecast' ? 'active' : ''}`} style={{ color: 'var(--navy-primary)', fontWeight: 800 }}>🤖 AI-Snjallspá</a>
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('history'); }} className={`vedur-nav-item ${viewMode === 'history' ? 'active' : ''}`}>🗓️ Ársgreining</a>
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('outlook'); }} className={`vedur-nav-item ${viewMode === 'outlook' ? 'active' : ''}`}>Áreiðanleiki</a>
-            <a href="https://en.vedur.is/earthquakes-and-volcanism/earthquakes/" target="_blank" rel="noreferrer" className="vedur-nav-item" style={{ opacity: 0.75 }}>Jarðskjálftar</a>
-            <a href="https://www.vedur.is/skjalf/ofanflod/" target="_blank" rel="noreferrer" className="vedur-nav-item" style={{ opacity: 0.75 }}>Snjóflóð</a>
-            <span className="badge-amber" style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+            <span className="badge-amber" style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
               Engin gul viðvörun
             </span>
           </nav>
@@ -590,7 +586,7 @@ export default function Home() {
                   <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Spádómur vs. Raunveruleiki
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Rauntíma- og 365 daga söguleg gögn (vedur.is)
+                  Rauntíma- og 365 daga söguleg veðurgögn
                 </span>
               </div>
               <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--navy-primary)' }}>
@@ -1198,37 +1194,12 @@ export default function Home() {
               Landshlutaaðlöguð Snjallspá & Sannprófun aftur í tímann
             </h2>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: '1200px', marginBottom: '1.25rem' }}>
-              Veðurstofan styðst við alþjóðleg tölvureiknilíkön (Harmonie og ECMWF) sem reikna eðlisfræðijöfnur í 2.5–9 km reitum. 
+              Hefðbundnar veðurspár styðjast við alþjóðleg tölvureiknilíkön (Harmonie og ECMWF) sem reikna eðlisfræðijöfnur í 2.5–9 km reitum. 
               Á Íslandi eru líkanaskekkjurnar mjög <strong>landshlutabundnar</strong>: Eyjafjöll og Snæfellsnes valda risavöxnum staðbundnum fallvindum, Eyjafjörður og Hérað fanga mikla hitahvarfakælingu í logni, og ströndin lendir ítrekað í 0°C núllpunktsgildrunni.
             </p>
 
-            {/* Regional Station Selector Pills inside AI view */}
-            <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--navy-primary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                📍 Veldu landshluta til að sjá staðbundna AI-leiðréttingu:
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {stations.map((st: any) => (
-                  <button
-                    key={st.obsId}
-                    onClick={() => setSelectedStationId(st.obsId)}
-                    className={`tab-pill ${selectedStationId === st.obsId ? 'active' : ''}`}
-                    style={{ 
-                      padding: '0.4rem 0.8rem', 
-                      fontSize: '0.8rem'
-                    }}
-                  >
-                    <span>{st.name}</span>
-                    <span style={{ fontSize: '0.65rem', opacity: 0.85, background: selectedStationId === st.obsId ? 'rgba(255,255,255,0.2)' : 'rgba(15,70,120,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                      {st.region}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Sub-Tabs: Upcoming Forecast vs Historical Backtesting */}
-            <div style={{ display: 'flex', gap: '0.6rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.6rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
               <button
                 onClick={() => setAiSubTab('forecast')}
                 className={`tab-pill ${aiSubTab === 'forecast' ? 'active' : ''}`}
@@ -1272,10 +1243,10 @@ export default function Home() {
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       {activeStation.obsId === 1 && 'Höfuðborgarsvæðið: Borgarhitahólmur vs. jaðarsvæði, fallbylgjur við Kjalarnes (+10 m/s hviður) og Hellisheiðarslydda.'}
-                      {activeStation.obsId === 3471 && 'Norðurland (Akureyri): Hitahvarfakuldapollur í logni (-4.8°C meira frost), Tröllaskagaél og Föhn-hitabylgjur í suðanátt.'}
-                      {activeStation.obsId === 6100 && 'Suðurland (Kirkjubæjarklaustur & Eyjafjöll): Örfa- og Eyjafjallahviður (+14 m/s fallbylgjur), sandfok á söndum og mikil jökulúrkoma.'}
-                      {activeStation.obsId === 2642 && 'Vestfirðir (Bolungarvík): Fjarðarrásun í Ísafjarðardjúpi, krapaslydda á fjallvegum og snjóflóðaveður.'}
-                      {activeStation.obsId === 422 && 'Austurland (Egilsstaðir): Hitahvarf í Fljótsdalshéraði, Fjarðarheiðarísing og Föhn-hitastökk í vestanátt.'}
+                      {[3471, 3433, 3696, 3317].includes(activeStation.obsId) && 'Norðurland: Hitahvarfakuldapollur í logni (-4.8°C meira frost), Tröllaskagaél og Föhn-hitabylgjur í suðanátt.'}
+                      {[6100, 6015, 6300, 5544].includes(activeStation.obsId) && 'Suðurland & Öræfi: Öræfa- og Eyjafjallahviður (+14 m/s fallbylgjur), sandfok á söndum og mikil jökulúrkoma.'}
+                      {[2642, 2644].includes(activeStation.obsId) && 'Vestfirðir: Fjarðarrásun í Ísafjarðardjúpi, krapaslydda á fjallvegum og snjóflóðaveður.'}
+                      {[422, 4271].includes(activeStation.obsId) && 'Austurland: Hitahvarf í Fljótsdalshéraði, Fjarðarheiðarísing og Föhn-hitastökk í vestanátt.'}
                       {activeStation.obsId === 1475 && 'Vesturland (Stykkishólmur): Snæfellsnesfallvindar (hviður hækkaðar í 29 m/s) og krapasvell á heiðum.'}
                       {activeStation.obsId === 0 && 'Landsyfirlit: Sameinuð greining yfir öll landshorn, 0°C núllpunktsgildrur og tímasetning á nýjum Atlantshafslægðum.'}
                     </div>
@@ -1329,7 +1300,7 @@ export default function Home() {
                           <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
                               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
-                                Hrá spá Veðurstofunnar
+                                Hrá tölvuspá (NWP líkan)
                               </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
@@ -1443,7 +1414,7 @@ export default function Home() {
                   Hefði þessi AI-spá staðist prófið ef hún hefði verið keyrð síðastliðið ár?
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-                  Til að sannreyna að gervigreindin sé ekki bara að giska, tókum við 3ja daga spár Veðurstofunnar (D-3) fyrir alla 365 daga ársins, keyrðum þær í gegnum líkanaleiðréttinguna, og báru saman við <strong>raunverulega mælda veðrið á veðurstöðvunum</strong>.
+                  Til að sannreyna að gervigreindin sé ekki bara að giska, tókum við 3ja daga tölvuspár (D-3) fyrir alla 365 daga ársins, keyrðum þær í gegnum líkanaleiðréttinguna, og báru saman við <strong>raunverulega mælda veðrið á veðurstöðvunum</strong>.
                 </p>
 
                 {/* 4 Grand Scorecards */}
@@ -1728,23 +1699,22 @@ export default function Home() {
       {/* End Main Container */}
       </main>
 
-      {/* Official Vedur.is Footer */}
+      {/* Footer styled exactly like vedur.is */}
       <footer className="vedur-footer">
         <div className="vedur-footer-content">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 80 80" fill="#ffffff" aria-label="Veðurstofa Íslands logo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 80 80" fill="#ffffff" aria-label="Veðurvaktin logo">
                 <path d="M48.8877 18.0154L31.0909 35.8016V0.240051L48.8877 18.0154ZM17.7754 31.3309L0 49.1277H35.5615L17.7754 31.3309ZM31.0909 62.4218L48.8877 80.2401V44.6893L31.0909 62.4218ZM62.1817 49.1277L80 31.3309H44.4492L62.1817 49.1277Z"></path>
               </svg>
-              <span style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>Veðurstofa Íslands</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>Veðurvaktin</span>
             </div>
             <p style={{ fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.6, maxWidth: '380px', marginBottom: '0.75rem' }}>
-              Bústaðavegi 7-9, 108 Reykjavík<br />
-              Sími: 522 6000 • Netfang: vedur@vedur.is<br />
-              Kennitala: 630908-0350
+              Sjálfstætt greiningarkerfi fyrir veðurspár og raunmælingar.<br />
+              Tölfræðilegt mat á spágæðum, 365 daga ársgreining og vélrænar líkanaleiðréttingar á spám.
             </p>
             <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-              Veðurspá vs. Raunveruleiki – Sjálfvirkt sannprófunarkerfi og AI-leiðrétting á spám Veðurstofunnar og evrópska reiknilíkansins (ECMWF/Harmonie).
+              Veðurspá vs. Raunveruleiki – Gagnvirkt kerfi sem ber saman evrópska reiknilíkanið (ECMWF/Harmonie) við rauntímamælingar á veðurstöðvum.
             </p>
           </div>
 
@@ -1759,29 +1729,29 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Náttúruvár</h4>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Líkön & Gögn</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
-              <li><a href="https://en.vedur.is/earthquakes-and-volcanism/earthquakes/" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Jarðskjálftar</a></li>
-              <li><a href="https://www.vedur.is/skjalf/ofanflod/" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Snjóflóðakort</a></li>
-              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Vatnafar & ár</a></li>
-              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Eldstöðvar</a></li>
+              <li><span style={{ color: '#cbd5e1' }}>ECMWF Evrópumódelið</span></li>
+              <li><span style={{ color: '#cbd5e1' }}>Harmonie 2.5km háupplausn</span></li>
+              <li><span style={{ color: '#cbd5e1' }}>Raunmælingar stöðva</span></li>
+              <li><span style={{ color: '#cbd5e1' }}>Líkanaleiðrétting (AI Bias)</span></li>
             </ul>
           </div>
 
           <div>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Upplýsingar</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
-              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Um Veðurstofuna</a></li>
-              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Hafa samband</a></li>
-              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Aðgengi & persónuvernd</a></li>
-              <li><a href="https://github.com/robertbeck-stack/vedurspa" target="_blank" rel="noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>Kóði á GitHub</a></li>
+              <li><span style={{ color: '#cbd5e1' }}>Sjálfstætt greiningarverkefni</span></li>
+              <li><span style={{ color: '#cbd5e1' }}>Aðferðafræði & Sannprófun</span></li>
+              <li><span style={{ color: '#cbd5e1' }}>Opinn hugbúnaður</span></li>
+              <li><a href="https://github.com/robertbeck-stack/vedurspa" target="_blank" rel="noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>Kóði á GitHub ↗</a></li>
             </ul>
           </div>
         </div>
 
         <div className="vedur-footer-bottom">
-          <div>© Veðurstofa Íslands • Höfundarréttur og skilmálar • Allur réttur áskilinn</div>
-          <div>Kerfi keyrt á Vercel & Next.js • Rauntímagögn frá Veðurstofu Íslands</div>
+          <div>© {new Date().getFullYear()} Veðurvaktin • Sjálfstætt greiningarkerfi • Allur réttur áskilinn</div>
+          <div>Kerfi keyrt á Vercel & Next.js • Byggt á opnum veðurgögnum</div>
         </div>
       </footer>
 

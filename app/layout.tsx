@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Veðurspá vs. Raunveruleiki | Veðurstofa Íslands',
-  description: 'Hversu rétt var veðurspáin á vedur.is miðað við raunmælingar veðurstöðva dagsins? Gagnvirkt mælaborð og greining á spágæðum á Íslandi.',
-  keywords: ['Veður', 'Veðurspá', 'Veðurstofa Íslands', 'Veðurathugun', 'Spágæði', 'Ísland'],
+  title: 'Veðurvaktin | Samanburður á spám & AI-Leiðrétting',
+  description: 'Hversu rétt var veðurspáin miðað við raunmælingar veðurstöðva dagsins? Gagnvirkt mælaborð, 365 daga ársgreining og AI-leiðrétting á tölvuspám á Íslandi.',
+  keywords: ['Veður', 'Veðurspá', 'Veðurathugun', 'Spágæði', 'Ísland', 'AI veðurspá', 'Veðurvaktin'],
   openGraph: {
-    title: 'Veðurspá vs. Raunveruleg veðurathugun',
-    description: 'Samanburður á veðurspá og veðurathugun dagsins á Íslandi.',
+    title: 'Veðurvaktin – Veðurspá vs. Raunveruleg veðurathugun',
+    description: 'Samanburður á tölvuspám og veðurathugunum á Íslandi ásamt AI-leiðréttingu.',
     type: 'website',
   }
 };
