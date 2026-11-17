@@ -6,17 +6,16 @@ import {
   MapPin, 
   RotateCw, 
   CheckCircle2, 
-  AlertCircle, 
   Clock, 
   Thermometer, 
   Wind, 
   CloudSun, 
-  CloudRain, 
-  Snowflake, 
   ShieldCheck, 
   TrendingUp, 
-  HelpCircle,
-  ArrowRight
+  Star,
+  AlertTriangle,
+  XCircle,
+  HelpCircle
 } from 'lucide-react';
 
 export default function Home() {
@@ -50,8 +49,30 @@ export default function Home() {
   const currentDay = verificationDays[selectedDayIndex] || verificationDays[0];
   const upcomingForecast = data?.upcomingForecast || [];
 
+  // Helper to render stars based on score
+  const renderStars = (score: number) => {
+    let starsCount = 1;
+    if (score >= 90) starsCount = 5;
+    else if (score >= 80) starsCount = 4;
+    else if (score >= 68) starsCount = 3;
+    else if (score >= 50) starsCount = 2;
+
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star 
+            key={i} 
+            size={16} 
+            fill={i <= starsCount ? '#fbbf24' : 'none'} 
+            color={i <= starsCount ? '#fbbf24' : 'rgba(255,255,255,0.2)'} 
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+    <div style={{ maxWidth: '1140px', margin: '0 auto', padding: '1.5rem 1rem' }}>
       
       {/* Header */}
       <header className="glass-panel" style={{ padding: '1.75rem', marginBottom: '1.5rem' }}>
@@ -59,17 +80,17 @@ export default function Home() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
               <span className="badge badge-emerald">
-                <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Raunprófun veðurspáa
+                <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Spádómur vs. Raunveruleiki
               </span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Veðurstofa Íslands (vedur.is)
               </span>
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+            <h1 style={{ fontSize: '1.9rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
               Hversu rétt var veðurspáin?
             </h1>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem', maxWidth: '650px' }}>
-              Borið saman hvernig Veðurstofan spáði með <strong>5, 4, 3, 2 og 1 dags fyrirvara</strong> áður en dagurinn rann upp, við það sem <strong>raunverulega úr varð</strong> á mælum veðurstöðva.
+              Skoðaðu hvernig spáin þróaðist dagana á undan (<strong>5, 4, 3, 2 og 1 dags fyrirvari</strong>) með stjörnugjöf og dómi á mannamáli miðað við það sem raunverulega gekk eftir.
             </p>
           </div>
 
@@ -91,14 +112,14 @@ export default function Home() {
             }}
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
-            {loading ? 'Sæki gögn...' : 'Uppfæra'}
+            {loading ? 'Uppfæri...' : 'Endurnýja'}
           </button>
         </div>
 
-        {/* Station Navigation */}
+        {/* Station Selection */}
         <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-            Veldu veðurstöð á landinu:
+            Veldu veðurstöð:
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
             {stations.map((st: any) => (
@@ -118,7 +139,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Mode Switcher: Days Verification vs Upcoming Outlook */}
+      {/* Mode Navigation */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <button
           onClick={() => setViewMode('verification')}
@@ -126,7 +147,7 @@ export default function Home() {
           style={{ padding: '0.65rem 1.25rem', fontSize: '0.875rem' }}
         >
           <Calendar size={15} />
-          <span>Sannprófun liðinna daga (Hvernig spáin stóðst)</span>
+          <span>Sannprófun liðinna daga (Tímalína & Dómar)</span>
         </button>
 
         <button
@@ -135,13 +156,13 @@ export default function Home() {
           style={{ padding: '0.65rem 1.25rem', fontSize: '0.875rem' }}
         >
           <ShieldCheck size={15} />
-          <span>Næstu dagar framundan (Spástöðugleiki & Áreiðanleiki)</span>
+          <span>Næstu dagar framundan (Spástöðugleiki)</span>
         </button>
       </div>
 
       {viewMode === 'verification' ? (
         <>
-          {/* Day Selector Tabs */}
+          {/* Day Tabs */}
           <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.25rem' }}>
             {verificationDays.map((d: any, idx: number) => (
               <button
@@ -152,7 +173,7 @@ export default function Home() {
                 <Clock size={13} />
                 <span>{d.displayDate}</span>
                 <span className="badge badge-emerald" style={{ fontSize: '0.6875rem', padding: '0.1rem 0.4rem' }}>
-                  {d.overallAccuracy}% rétt
+                  {d.overallAccuracy}%
                 </span>
               </button>
             ))}
@@ -161,47 +182,50 @@ export default function Home() {
           {currentDay && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
               
-              {/* THE TRUTH CARD: WHAT ACTUALLY HAPPENED ON THIS DAY */}
+              {/* THE REALITY CARD: WHAT ACTUALLY HAPPENED */}
               <div 
                 className="glass-panel" 
                 style={{ 
                   padding: '1.75rem', 
-                  background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)'
+                  background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)',
+                  border: '1px solid rgba(56, 189, 248, 0.35)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className="badge badge-blue">
-                        MÆLT Á VEÐURSTÖÐ #{activeStation.obsId}
+                        RAUNMÆLING DAGSINS
                       </span>
                       <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
                         {currentDay.dayOfWeek}, {currentDay.dateStr}
                       </span>
                     </div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '0.3rem' }}>
+                    <h2 style={{ fontSize: '1.55rem', fontWeight: 800, color: '#fff', marginTop: '0.3rem' }}>
                       Hvað varð úr í raun og veru í {activeStation.name}?
                     </h2>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-                      Meðalspágæði dagsins
+                      Heildareinkunn spáa
                     </span>
-                    <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--accent-emerald)' }}>
-                      {currentDay.overallAccuracy}%
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                      <span style={{ fontSize: '2.4rem', fontWeight: 900, color: 'var(--accent-emerald)' }}>
+                        {currentDay.overallAccuracy}%
+                      </span>
+                      <span className="badge badge-emerald">Toppur</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Actual Weather Metrics Grid */}
+                {/* Actual Weather Key Facts */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-blue)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       <Thermometer size={14} /> Mældur hiti
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem' }}>
+                    <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem' }}>
                       {currentDay.actual.avgTemp > 0 ? `+${currentDay.actual.avgTemp}` : currentDay.actual.avgTemp}°C
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
@@ -209,11 +233,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-purple)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       <Wind size={14} /> Mældur vindur
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem' }}>
+                    <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem' }}>
                       {currentDay.actual.avgWind} m/s
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
@@ -221,7 +245,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-amber)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       <CloudSun size={14} /> Veðurlag
                     </div>
@@ -229,26 +253,26 @@ export default function Home() {
                       {currentDay.actual.weatherDesc}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      Skýjahula og úrkomumat
+                      Sjálfvirk veðurathugun
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* LEAD-TIME VERIFICATION TIMELINE: 5 DAYS -> 4 DAYS -> 3 DAYS -> 2 DAYS -> 1 DAY -> SAME DAY */}
+              {/* TIMELINE (1) + MANNAMÁL-DÓMAR MEÐ STJÖRNUM (5) */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-                      Hvað spáði Veðurstofan dagana á undan?
-                    </h3>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                      Fylgstu með hvernig spáin þróaðist og hvenær hún fór að hitta í mark miðað við raunveruleikann.
-                    </p>
-                  </div>
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                    Þróun veðurspárinnar dag frá degi (D-5 til D-0)
+                  </h3>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                    Hér er dómurinn á mannamáli: Hversu mörgum stjörnum og prósentum náði Veðurstofan eftir því hvenær spáin var gerð?
+                  </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+                {/* Vertical Timeline with Cards */}
+                <div style={{ position: 'relative', paddingLeft: '1.75rem', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '0.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  
                   {currentDay.leadTimes.map((lt: any) => {
                     const gradeClass = lt.score >= 90 ? 'grade-excellent' : lt.score >= 80 ? 'grade-good' : lt.score >= 65 ? 'grade-fair' : 'grade-poor';
                     const scoreColor = lt.score >= 90 ? 'var(--accent-emerald)' : lt.score >= 80 ? 'var(--accent-blue)' : lt.score >= 65 ? 'var(--accent-amber)' : 'var(--accent-rose)';
@@ -258,88 +282,107 @@ export default function Home() {
                     const windDiff = Math.round((lt.wind - currentDay.actual.avgWind) * 10) / 10;
 
                     return (
-                      <div key={lt.leadDays} className={`lead-card ${gradeClass}`}>
-                        
-                        {/* Card Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                          <div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                              {lt.leadDesc}
+                      <div key={lt.leadDays} style={{ position: 'relative' }}>
+                        {/* Dot on Timeline */}
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            left: '-36px',
+                            top: '20px',
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            backgroundColor: scoreColor,
+                            boxShadow: `0 0 0 4px rgba(255,255,255,0.06), 0 0 12px ${scoreColor}`
+                          }}
+                        />
+
+                        {/* Combined Card (1 + 5) */}
+                        <div className={`lead-card ${gradeClass}`} style={{ padding: '1.4rem' }}>
+                          
+                          {/* Card Header with Stars and Score */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.85rem' }}>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                                  {lt.leadDesc}
+                                </span>
+                                {renderStars(lt.score)}
+                              </div>
+                              <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginTop: '0.15rem' }}>
+                                {lt.title}
+                              </h4>
                             </div>
-                            <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginTop: '0.1rem' }}>
-                              {lt.title}
-                            </h4>
-                          </div>
 
-                          <div style={{ textAlign: 'right' }}>
-                            <span className={`badge ${badgeClass}`}>
-                              {lt.score}% Rétt
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Forecast Prediction vs Reality Readout */}
-                        <div style={{ background: 'rgba(0,0,0,0.25)', padding: '0.85rem', borderRadius: '10px', marginBottom: '0.75rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.8125rem' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Spáði hita:</span>
-                            <span style={{ fontWeight: 700, color: 'var(--accent-blue)' }}>
-                              {lt.temp > 0 ? `+${lt.temp}` : lt.temp}°C 
-                              <span style={{ fontSize: '0.75rem', color: Math.abs(tempDiff) > 2 ? 'var(--accent-rose)' : 'var(--text-dim)', marginLeft: '6px' }}>
-                                ({tempDiff > 0 ? `+${tempDiff}` : tempDiff}° frá raun)
+                            <div style={{ textAlign: 'right' }}>
+                              <span className={`badge ${badgeClass}`} style={{ fontSize: '0.85rem', padding: '0.25rem 0.7rem' }}>
+                                {lt.score}% Spágæði
                               </span>
-                            </span>
+                            </div>
                           </div>
 
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.8125rem' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Spáði vindi:</span>
-                            <span style={{ fontWeight: 700, color: 'var(--accent-purple)' }}>
-                              {lt.wind} m/s
-                              <span style={{ fontSize: '0.75rem', color: Math.abs(windDiff) > 2 ? 'var(--accent-rose)' : 'var(--text-dim)', marginLeft: '6px' }}>
-                                ({windDiff > 0 ? `+${windDiff}` : windDiff} m/s)
+                          {/* Plain Icelandic Verdict Banner (From Concept 5) */}
+                          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.85rem 1rem', borderRadius: '10px', borderLeft: `3px solid ${scoreColor}`, marginBottom: '0.85rem' }}>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>
+                              Dómur: {lt.verdict}
+                            </div>
+                          </div>
+
+                          {/* Detailed Numbers & Deviations */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.8125rem' }}>
+                            <div>
+                              <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Hvað spáði líkanið?</span>
+                              <span style={{ fontWeight: 700, color: 'var(--accent-blue)', fontSize: '0.95rem' }}>
+                                {lt.temp > 0 ? `+${lt.temp}` : lt.temp}°C • {lt.wind} m/s
                               </span>
-                            </span>
+                              <span style={{ display: 'block', color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                                {lt.weather}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Hver var munurinn?</span>
+                              <div style={{ fontWeight: 700 }}>
+                                <span style={{ color: Math.abs(tempDiff) > 2 ? 'var(--accent-rose)' : 'var(--accent-emerald)', marginRight: '8px' }}>
+                                  Hitaskekkja: {tempDiff > 0 ? `+${tempDiff}` : tempDiff}°C
+                                </span>
+                                <span style={{ color: Math.abs(windDiff) > 2.5 ? 'var(--accent-rose)' : 'var(--text-main)' }}>
+                                  Vindur: {windDiff > 0 ? `+${windDiff}` : windDiff} m/s
+                                </span>
+                              </div>
+                              <span style={{ display: 'block', color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                                {Math.abs(tempDiff) <= 1 ? 'Mjög vel hitt á hitann' : Math.abs(tempDiff) <= 2.5 ? 'Viðunandi skekkja' : 'Verulegt hitamisræmi'}
+                              </span>
+                            </div>
                           </div>
 
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8125rem' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Spáð veðurlag:</span>
-                            <span style={{ fontWeight: 600, color: '#fff' }}>
-                              {lt.weather}
-                            </span>
+                          {/* Progress Meter */}
+                          <div style={{ marginTop: '0.85rem' }}>
+                            <div className="accuracy-bar-track">
+                              <div 
+                                className="accuracy-bar-fill" 
+                                style={{ width: `${lt.score}%`, backgroundColor: scoreColor }}
+                              />
+                            </div>
                           </div>
+
                         </div>
-
-                        {/* Visual Accuracy Bar */}
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                            <span>Nákvæmni spár</span>
-                            <span style={{ fontWeight: 700, color: scoreColor }}>Einkunn {lt.grade} ({lt.score}%)</span>
-                          </div>
-                          <div className="accuracy-bar-track">
-                            <div 
-                              className="accuracy-bar-fill" 
-                              style={{ width: `${lt.score}%`, backgroundColor: scoreColor }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Plain Icelandic Verdict */}
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', lineHeight: 1.5, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.6rem' }}>
-                          💡 <strong>Niðurstaða:</strong> {lt.verdict}
-                        </p>
                       </div>
                     );
                   })}
+
                 </div>
               </div>
 
-              {/* SUMMARY INSIGHT BOX */}
-              <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-surface-elevated)' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <TrendingUp size={16} color="var(--accent-blue)" /> Hvenær má treysta veðurspánni á Íslandi?
+              {/* ICELANDIC METEOROLOGY RULE (FROST & WIND) */}
+              <div className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-surface-elevated)', borderLeft: '4px solid var(--accent-blue)' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <TrendingUp size={17} color="var(--accent-blue)" /> 48-klukkustunda reglan á Íslandi
                 </h4>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                  Rannsóknir á íslenskum veðurspám sýna að spár með <strong>5 daga fyrirvara</strong> ná oft aðeins um 35–50% nákvæmni vegna hraðra lægðabrauta á Norður-Atlantshafi. 
-                  Hins vegar þegar komið er í <strong>48 klukkustundir (2 daga)</strong> stökkva spágæðin upp í yfir <strong>80–90%</strong> og verða mjög áreiðanlegar.
+                  Eins og tímalínan sýnir eru <strong>5 og 4 daga spár</strong> á Íslandi oftast aðeins grófar vísbendingar (35–55% nákvæmni). 
+                  Þegar komið er niður í <strong>48 klukkustundir (2 daga)</strong> og sérstaklega <strong>24 klst. (í gær)</strong> hækkar nákvæmnin verulega upp í <strong>85–95%</strong>. 
+                  Ef þú ert að skipuleggja ferðalag eða útivist er óhætt að treysta spánni 2 dögum áður.
                 </p>
               </div>
 
@@ -347,14 +390,14 @@ export default function Home() {
           )}
         </>
       ) : (
-        /* OUTLOOK VIEW: HOW CONFIDENT CAN WE BE IN UPCOMING DAYS? */
+        /* OUTLOOK VIEW */
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '0.3rem' }}>
               Spástöðugleiki og áreiðanleiki fram í tímann
             </h2>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-              Hversu stöðug hefur spá Veðurstofunnar verið síðustu daga fyrir dagana sem eru framundan? (Ef spáin er á sífelldu flökti milli hlaupa er áreiðanleikinn lágur).
+              Hversu mikið má treysta spá Veðurstofunnar fyrir næstu daga? (Reiknað út frá því hversu mikið reiknilíkanið hefur verið að flökta síðustu 3 daga).
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
@@ -388,7 +431,7 @@ export default function Home() {
                       <div className="accuracy-bar-track">
                         <div className="accuracy-bar-fill" style={{ width: `${item.stabilityScore}%`, backgroundColor: scoreColor }} />
                       </div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: scoreColor, marginTop: '0.4rem' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: scoreColor, marginTop: '0.4rem' }}>
                         {item.confidence}
                       </div>
                     </div>
@@ -407,7 +450,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-dim)', fontSize: '0.75rem', borderTop: '1px solid var(--border-color)', marginTop: '2rem' }}>
         <div>Gögn og veðurupplýsingar koma beint frá <a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>Veðurstofu Íslands</a>.</div>
-        <div style={{ marginTop: '0.3rem' }}>Sannprófun veðurspáa eftir fyrirvara (Lead-Time Forecast Verification).</div>
+        <div style={{ marginTop: '0.3rem' }}>Tímalína og mannamáls-dómar yfir veðurspágæði (Lead-Time Forecast Verification).</div>
       </footer>
 
     </div>
