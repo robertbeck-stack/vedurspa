@@ -107,6 +107,19 @@ export default function Home() {
   const [apiTestOutput, setApiTestOutput] = useState<any>(null);
   const [apiTestLoading, setApiTestLoading] = useState<boolean>(false);
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+
+  const REGION_TABS = [
+    { name: 'Allt landið', obsId: 0 },
+    { name: 'Höfuðborgarsvæðið', obsId: 1 },
+    { name: 'Norðurland', obsId: 3471 },
+    { name: 'Austurland', obsId: 422 },
+    { name: 'Vestfirðir', obsId: 2642 },
+    { name: 'Suðurland', obsId: 6300 },
+    { name: 'Vesturland', obsId: 1475 },
+    { name: 'Suðausturland', obsId: 5544 },
+  ];
 
   const runApiTest = async (st: string) => {
     setApiTestLoading(true);
@@ -158,6 +171,11 @@ export default function Home() {
   }, [selectedStationId]);
 
   const stations = data?.allStations || [];
+  const filteredStations = stations.filter((st: any) => 
+    st.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    st.region?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    st.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const activeStation = data?.station || { name: 'Allt landið', fullName: 'Allt landið (Landsyfirlit)', region: 'Ísland allt' };
   const verificationDays = data?.verificationDays || [];
   const currentDay = verificationDays[selectedDayIndex] || verificationDays[0];
@@ -648,14 +666,48 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Pill Search */}
+            {/* Pill Search with Real Dropdown */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input 
                 type="text" 
                 placeholder="Leita að stað eða veðurstöð..." 
                 className="vedur-search-input"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchOpen(true);
+                }}
+                onFocus={() => setIsSearchOpen(true)}
+                onBlur={() => setTimeout(() => setIsSearchOpen(false), 250)}
               />
+              {isSearchOpen && searchQuery.trim().length > 0 && (
+                <div className="vedur-search-dropdown">
+                  {filteredStations.length === 0 ? (
+                    <div style={{ padding: '0.65rem 0.85rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Engin stöð fannst
+                    </div>
+                  ) : (
+                    filteredStations.map((st: any) => (
+                      <div 
+                        key={st.obsId} 
+                        className="vedur-search-item"
+                        onMouseDown={() => {
+                          setSelectedStationId(st.obsId);
+                          setSearchQuery('');
+                          setIsSearchOpen(false);
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <MapPin size={12} color="var(--navy-primary)" />
+                          <span style={{ fontWeight: 600 }}>{st.name}</span>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{st.region}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -676,173 +728,118 @@ export default function Home() {
         </div>
       </header>
 
+      {/* 3. Vedur.is Secondary Regional Subnav (Landshlutar & Stöðvaval) */}
+      <div className="vedur-subnav">
+        <div className="vedur-subnav-content">
+          <div className="vedur-subnav-regions">
+            {REGION_TABS.map((reg) => {
+              const isCurrentRegion = 
+                (reg.obsId === 0 && selectedStationId === 0) ||
+                (reg.name === activeStation.region && selectedStationId !== 0);
+              return (
+                <button
+                  key={reg.name}
+                  onClick={() => setSelectedStationId(reg.obsId)}
+                  className={`vedur-subnav-item ${isCurrentRegion ? 'active' : ''}`}
+                >
+                  {reg.name}
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <MapPin size={13} color="#ffffff" style={{ opacity: 0.9 }} />
+              <select 
+                value={selectedStationId} 
+                onChange={(e) => setSelectedStationId(Number(e.target.value))}
+                className="vedur-station-select"
+                aria-label="Veldu veðurstöð"
+              >
+                {stations.map((st: any) => (
+                  <option key={st.obsId} value={st.obsId}>
+                    {st.name} ({st.region})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button 
+              onClick={() => fetchData(selectedStationId)} 
+              disabled={loading}
+              className="vedur-subnav-item"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.15)' }}
+              title="Endurnýja gögn"
+            >
+              <RotateCw size={12} className={loading ? 'animate-spin' : ''} />
+              <span>{loading ? '...' : 'Endurnýja'}</span>
+            </button>
+
+            <a 
+              href="/vedurvaktin-extension.zip" 
+              download="vedurvaktin-extension.zip"
+              className="vedur-subnav-item"
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '4px', 
+                background: '#059669', 
+                color: '#ffffff', 
+                fontWeight: 700 
+              }}
+              title="Hlaða niður Chrome viðbót"
+            >
+              <Download size={12} />
+              <span>Sækja viðbót (.zip)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Main Container */}
       <main className="widescreen-container" style={{ flex: '1 0 auto', paddingBottom: '2rem' }}>
         
-        {/* Context Subheader Card */}
-        <section className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                <span className="badge badge-emerald">
-                  <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Spádómur vs. Raunveruleiki
-                </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Rauntíma- og 365 daga söguleg veðurgögn
-                </span>
-              </div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--navy-primary)' }}>
-                Hversu rétt var veðurspáin?
-              </h1>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <a 
-                href="/vedurvaktin-extension.zip" 
-                download="vedurvaktin-extension.zip"
-                style={{
-                  background: 'var(--navy-primary)',
-                  color: '#ffffff',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  padding: '0.55rem 0.95rem',
-                  borderRadius: '8px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  textDecoration: 'none',
-                  boxShadow: '0 2px 4px rgba(15,70,120,0.15)'
-                }}
-              >
-                <Download size={14} /> Hlaða niður viðbót (.zip)
-              </a>
-
-              <button 
-                onClick={() => fetchData(selectedStationId)} 
-                disabled={loading}
-                className="tab-pill"
-              >
-                <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
-                <span>{loading ? 'Uppfæri...' : 'Endurnýja gögn'}</span>
-              </button>
-            </div>
+        {/* Sleek Vedur.is Breadcrumb & Day Navigation Bar */}
+        <div className="vedur-breadcrumb-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              Veður &gt; {activeStation.region} &gt;
+            </span>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)', margin: 0 }}>
+              {activeStation.fullName}
+            </h1>
+            <span className="badge badge-blue" style={{ fontSize: '0.72rem' }}>
+              {activeStation.obsId === 0 ? 'Landsyfirlit' : `Stöð #${activeStation.obsId}`}
+            </span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              • Rauntímamælingar & AI-Leiðrétting
+            </span>
           </div>
 
-          {/* Station Selection Chips Bar */}
-          <div style={{ marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-                Veldu landshluta eða veðurstöð:
+          {/* Day Selectors if in verification mode (matching vedur.is day pills) */}
+          {viewMode === 'verification' && (
+            <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>
+                Fyrirvari dagsins:
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--navy-primary)', fontWeight: 700 }}>
-                Valið: {activeStation.fullName}
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.2rem' }}>
-              {stations.map((st: any) => (
+              {verificationDays.map((d: any, idx: number) => (
                 <button
-                  key={st.obsId}
-                  onClick={() => setSelectedStationId(st.obsId)}
-                  className={`tab-pill ${selectedStationId === st.obsId ? 'active' : ''}`}
-                  style={{ 
-                    padding: '0.45rem 0.85rem', 
-                    fontSize: '0.8rem',
-                    fontWeight: st.obsId === 0 ? 800 : 600,
-                    border: st.obsId === 0 ? '1px solid var(--navy-primary)' : undefined
-                  }}
+                  key={d.dateStr}
+                  onClick={() => setSelectedDayIndex(idx)}
+                  className={`tab-pill ${selectedDayIndex === idx ? 'active' : ''}`}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
                 >
-                  {st.obsId === 0 ? <Globe2 size={13} color={selectedStationId === 0 ? '#fff' : 'var(--navy-primary)'} /> : <MapPin size={12} />}
-                  <span>{st.name}</span>
-                  <span style={{ fontSize: '0.65rem', opacity: 0.85, background: selectedStationId === st.obsId ? 'rgba(255,255,255,0.2)' : 'rgba(15,70,120,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                    {st.region}
+                  <Clock size={11} />
+                  <span>{d.displayDate}</span>
+                  <span className="badge badge-emerald" style={{ fontSize: '0.65rem', padding: '0.05rem 0.3rem' }}>
+                    {d.overallAccuracy}%
                   </span>
                 </button>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Main Mode Toggle */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            
-            <button
-              onClick={() => setViewMode('history')}
-              className={`tab-pill ${viewMode === 'history' ? 'active' : ''}`}
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-            >
-              <History size={15} color={viewMode === 'history' ? '#fff' : 'var(--navy-primary)'} />
-              <span>🗓️ Heilt ár (365 daga hitakort & sveiflur)</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode('aiForecast')}
-              className={`tab-pill ${viewMode === 'aiForecast' ? 'active' : ''}`}
-              style={{ 
-                padding: '0.65rem 1.25rem', 
-                fontSize: '0.85rem',
-                borderColor: viewMode === 'aiForecast' ? 'var(--navy-primary)' : undefined
-              }}
-            >
-              <Sparkles size={15} color={viewMode === 'aiForecast' ? '#fff' : 'var(--navy-primary)'} />
-              <span>🤖 AI-Leiðrétt Spá (Snjallspá)</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode('verification')}
-              className={`tab-pill ${viewMode === 'verification' ? 'active' : ''}`}
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-            >
-              <BarChart3 size={15} color={viewMode === 'verification' ? '#fff' : 'var(--navy-primary)'} />
-              <span>Sannprófun dagsins (D-5 til D-0)</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode('outlook')}
-              className={`tab-pill ${viewMode === 'outlook' ? 'active' : ''}`}
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-            >
-              <ShieldCheck size={15} color={viewMode === 'outlook' ? '#fff' : 'var(--navy-primary)'} />
-              <span>Spástöðugleiki framundan (Næstu 4 dagar)</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setViewMode('apiDocs');
-                if (!apiTestOutput) runApiTest('reykjavik');
-              }}
-              className={`tab-pill ${viewMode === 'apiDocs' ? 'active' : ''}`}
-              style={{ 
-                padding: '0.65rem 1.25rem', 
-                fontSize: '0.85rem',
-                borderColor: viewMode === 'apiDocs' ? 'var(--navy-primary)' : undefined
-              }}
-            >
-              <Code2 size={15} color={viewMode === 'apiDocs' ? '#fff' : 'var(--navy-primary)'} />
-              <span>🔌 API & Chrome Viðbót</span>
-            </button>
-          </div>
-
-        {/* Day Selectors if in verification mode */}
-        {viewMode === 'verification' && (
-          <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto' }}>
-            {verificationDays.map((d: any, idx: number) => (
-              <button
-                key={d.dateStr}
-                onClick={() => setSelectedDayIndex(idx)}
-                className={`tab-pill ${selectedDayIndex === idx ? 'active' : ''}`}
-                style={{ padding: '0.45rem 0.8rem', fontSize: '0.78rem' }}
-              >
-                <Clock size={12} />
-                <span>{d.displayDate}</span>
-                <span className="badge badge-emerald" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>
-                  {d.overallAccuracy}%
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
       {/* ========================================================================= */}
       {/* VIEW: HEILT ÁR (365 DAGAR & RAUNVERULEGAR SVEIFLUR) */}
