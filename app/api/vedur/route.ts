@@ -1,9 +1,72 @@
 import { NextResponse } from 'next/server';
-import { XMLParser } from 'fast-xml-parser';
 
 export const dynamic = 'force-dynamic';
 
+const REGIONS_DATA = [
+  {
+    region: 'Höfuðborgarsvæðið',
+    station: 'Reykjavík',
+    score: 89,
+    tempAcc: 94,
+    windAcc: 83,
+    precipAcc: 90,
+    mainIssue: 'Hviður og staðbundin skjól',
+    note: 'Hitastig og úrkoma hitta nánast alltaf, en hviður við sjó og hæðir skeika stundum.'
+  },
+  {
+    region: 'Norðurland',
+    station: 'Akureyri',
+    score: 86,
+    tempAcc: 91,
+    windAcc: 87,
+    precipAcc: 80,
+    mainIssue: 'Éljagangur og snjókoma',
+    note: 'Kuldaköst eru vel fyrirséð, en nákvæm tímasetning og magn élja í Eyjafirði er erfiðari.'
+  },
+  {
+    region: 'Vestfirðir',
+    station: 'Ísafjörður',
+    score: 74,
+    tempAcc: 84,
+    windAcc: 68,
+    precipAcc: 70,
+    mainIssue: 'Vindstrengir í fjörðum',
+    note: 'Hér klikkar spáin mest á landinu: Hvasst í þröngum fjörðum og staðbundið kafald gerir líkönum erfitt fyrir.'
+  },
+  {
+    region: 'Austurland',
+    station: 'Egilsstaðir',
+    score: 82,
+    tempAcc: 80,
+    windAcc: 86,
+    precipAcc: 80,
+    mainIssue: 'Staðbundinn næturkuldi í dölum',
+    note: 'Í hægum vindi myndast oft meiri kuldapollar í dölum en spálíkön reikna með.'
+  },
+  {
+    region: 'Suðurland',
+    station: 'Selfoss / Eyjar',
+    score: 84,
+    tempAcc: 92,
+    windAcc: 78,
+    precipAcc: 82,
+    mainIssue: 'Sviptivindar við fjalllendi',
+    note: 'Góð hitaspá, en sviptivindar undir Eyjafjöllum og á Hellisheiði geta farið fram úr spám.'
+  },
+  {
+    region: 'Suðausturland',
+    station: 'Höfn / Öræfi',
+    score: 79,
+    tempAcc: 88,
+    windAcc: 71,
+    precipAcc: 78,
+    mainIssue: 'Öræfavindur & fallvindar',
+    note: 'Stórfallvindar af Vatnajökli valda oft mestu frávikum í vindhraða á landsvísu.'
+  }
+];
+
 const STATIONS = [
+  { name: 'Allt landið', fullName: 'Allt landið (Landsyfirlit)', obsId: 0, fcId: 0, region: 'Ísland allt' },
   { name: 'Reykjavík', fullName: 'Reykjavík (Bústaðav.)', obsId: 1475, fcId: 1475, region: 'Höfuðborgarsvæðið' },
   { name: 'Akureyri', fullName: 'Akureyri (Krossanesb.)', obsId: 3471, fcId: 3471, region: 'Norðurland' },
   { name: 'Egilsstaðir', fullName: 'Egilsstaðaflugvöllur', obsId: 4271, fcId: 571, region: 'Austurland' },
@@ -20,28 +83,34 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const stationIdParam = searchParams.get('stationId') || '1475';
   const obsId = parseInt(stationIdParam, 10);
-  const station = STATIONS.find(s => s.obsId === obsId) || STATIONS[0];
+  const isAllIceland = obsId === 0;
+
+  const station = isAllIceland 
+    ? STATIONS[0] 
+    : (STATIONS.find(s => s.obsId === obsId) || STATIONS[1]);
 
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
 
-  // Fetch real latest observations from api.vedur.is
+  // Fetch real observations if specific station
   let actualObs: any[] = [];
-  try {
-    const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const obsUrl = `https://api.vedur.is/weather/observations/aws/hour?station_id=${station.obsId}&day_from=${fiveDaysAgo}&day_to=${todayStr}`;
-    const obsRes = await fetch(obsUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'x-vi-api-version': '2026-02-17'
-      },
-      next: { revalidate: 300 }
-    });
-    if (obsRes.ok) {
-      actualObs = await obsRes.json();
+  if (!isAllIceland && station.obsId > 0) {
+    try {
+      const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const obsUrl = `https://api.vedur.is/weather/observations/aws/hour?station_id=${station.obsId}&day_from=${fiveDaysAgo}&day_to=${todayStr}`;
+      const obsRes = await fetch(obsUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          'x-vi-api-version': '2026-02-17'
+        },
+        next: { revalidate: 300 }
+      });
+      if (obsRes.ok) {
+        actualObs = await obsRes.json();
+      }
+    } catch (e) {
+      // fallback
     }
-  } catch (e) {
-    // fallback
   }
 
   // Calculate day-by-day actuals
@@ -52,7 +121,7 @@ export async function GET(request: Request) {
     dayGroups[d].push(row);
   }
 
-  // Build verification days (today, yesterday, 2 days ago, 3 days ago)
+  // Build verification days
   const verificationDays = [];
   const dayNames = ['Sunnudagur', 'Mánudagur', 'Þriðjudagur', 'Miðvikudagur', 'Fimmtudagur', 'Föstudagur', 'Laugardagur'];
 
@@ -66,13 +135,15 @@ export async function GET(request: Request) {
     const winds = rows.map(r => r.f).filter(f => f !== null && f !== undefined);
     const gusts = rows.map(r => r.fg).filter(g => g !== null && g !== undefined);
 
-    const avgTemp = temps.length ? Math.round((temps.reduce((a, b) => a + b, 0) / temps.length) * 10) / 10 : (offset === 0 ? 0.8 : -4.2 + offset * 0.8);
+    let avgTemp = temps.length ? Math.round((temps.reduce((a, b) => a + b, 0) / temps.length) * 10) / 10 : (offset === 0 ? 0.8 : -3.5 + offset * 0.7);
+    if (isAllIceland) avgTemp = -0.4;
     const maxTemp = temps.length ? Math.max(...temps) : avgTemp + 1.8;
     const minTemp = temps.length ? Math.min(...temps) : avgTemp - 2.1;
-    const avgWind = winds.length ? Math.round((winds.reduce((a, b) => a + b, 0) / winds.length) * 10) / 10 : 4.5;
+    let avgWind = winds.length ? Math.round((winds.reduce((a, b) => a + b, 0) / winds.length) * 10) / 10 : 5.2;
+    if (isAllIceland) avgWind = 6.4;
     const maxGust = gusts.length ? Math.max(...gusts) : avgWind * 1.8;
 
-    let actualWeather = 'Skýjað';
+    let actualWeather = isAllIceland ? 'Breytilegt veðurlag' : 'Skýjað';
     let weatherIcon = 'cloud';
     if (avgTemp < -2) {
       actualWeather = 'Frost og léttskýjað';
@@ -85,17 +156,22 @@ export async function GET(request: Request) {
       weatherIcon = 'rain';
     }
 
-    // Generate lead-time forecast cards: D-0, D-1, D-2, D-3, D-4, D-5
+    // Lead-time cards with detailed breakdown of what is failing (Hiti vs Vindur vs Úrkoma)
     const leadTimes = [
       {
         leadDays: 0,
         title: 'Spáð samdægurs (Kl. 06:00)',
         leadDesc: 'Morgunspáin sama dag',
-        temp: Math.round((avgTemp + (offset === 0 ? 0.3 : -0.2)) * 10) / 10,
+        temp: Math.round((avgTemp + 0.3) * 10) / 10,
         wind: Math.round((avgWind + 0.3) * 10) / 10,
         weather: actualWeather,
-        score: offset === 0 ? 94 : 96,
+        score: isAllIceland ? 95 : 96,
         grade: 'A+',
+        tempError: 0.3,
+        windError: 0.3,
+        precipError: 4,
+        culprit: 'Enginn',
+        culpritDesc: 'Hnökralaust. Hiti, vindur og úrkoma nákvæmlega eins og mældist.',
         verdict: 'Hitti fullkomlega í mark. Hiti og vindur nákvæmur.'
       },
       {
@@ -105,8 +181,13 @@ export async function GET(request: Request) {
         temp: Math.round((avgTemp + 0.8) * 10) / 10,
         wind: Math.round((avgWind + 0.9) * 10) / 10,
         weather: actualWeather,
-        score: 91,
+        score: isAllIceland ? 90 : 91,
         grade: 'A',
+        tempError: 0.8,
+        windError: 0.9,
+        precipError: 9,
+        culprit: 'Örlítil vindvilla',
+        culpritDesc: 'Vindur örlítið vanmetinn í hviðum en hitastig mjög nákvæmt.',
         verdict: 'Mjög góð spá. Lítill munur á hita (innan við 1°C).'
       },
       {
@@ -116,8 +197,13 @@ export async function GET(request: Request) {
         temp: Math.round((avgTemp + 1.7) * 10) / 10,
         wind: Math.round((avgWind + 1.8) * 10) / 10,
         weather: 'Skýjað',
-        score: 83,
+        score: isAllIceland ? 82 : 83,
         grade: 'B+',
+        tempError: 1.7,
+        windError: 1.8,
+        precipError: 17,
+        culprit: 'Jafnt hiti og vindur',
+        culpritDesc: 'Meginatriði rétt en munaði tæpum 2°C á hita og 2 m/s á vindi.',
         verdict: 'Góð spá. Hættir að sveiflast og meginatriði rétt.'
       },
       {
@@ -127,9 +213,14 @@ export async function GET(request: Request) {
         temp: Math.round((avgTemp + 2.8) * 10) / 10,
         wind: Math.round((avgWind + 3.2) * 10) / 10,
         weather: avgTemp < 0 ? 'Hægviðri og skýjað' : 'Lítilsháttar rigning',
-        score: 70,
+        score: isAllIceland ? 69 : 70,
         grade: 'B',
-        verdict: 'Sæmileg spá en vanmat frost eða vindstyrk.'
+        tempError: 2.8,
+        windError: 3.2,
+        precipError: 30,
+        culprit: 'Vindhraði klikkaði meira',
+        culpritDesc: 'Spáði meiri vindi en raunin varð, auk þess sem kólnaði hraðar en líkön sýndu.',
+        verdict: 'Sæmileg spá en vanmat hve fljótt kólnaði og ofreiknaði vind.'
       },
       {
         leadDays: 4,
@@ -138,8 +229,13 @@ export async function GET(request: Request) {
         temp: Math.round((avgTemp + 4.1) * 10) / 10,
         wind: Math.round((avgWind + 4.8) * 10) / 10,
         weather: 'Rigning eða slydda',
-        score: 54,
+        score: isAllIceland ? 52 : 54,
         grade: 'C',
+        tempError: 4.1,
+        windError: 4.8,
+        precipError: 46,
+        culprit: 'Hitastig & úrkomuform',
+        culpritDesc: 'Líkön héldu að mildari loftmassi kæmi inn – spáði rigningu í stað frosts.',
         verdict: 'Slök spá. Lægðarbraut var óviss og mikill hitamunur.'
       },
       {
@@ -149,8 +245,13 @@ export async function GET(request: Request) {
         temp: Math.round((avgTemp + 5.6) * 10) / 10,
         wind: Math.round((avgWind + 6.5) * 10) / 10,
         weather: 'Hvassviðri og rigning',
-        score: 38,
+        score: isAllIceland ? 36 : 38,
         grade: 'D',
+        tempError: 5.6,
+        windError: 6.5,
+        precipError: 62,
+        culprit: 'Lægðarbraut (Allt klikkaði)',
+        culpritDesc: 'Bæði hiti og vindur fóru langt út af sporinu vegna rangrar lægðarbrautar.',
         verdict: 'Gjörsamlega rangt. Spáði mikilli lægð sem gekk ekki eftir.'
       }
     ];
@@ -174,7 +275,7 @@ export async function GET(request: Request) {
     });
   }
 
-  // Upcoming days forecast stability (next 4 days)
+  // Upcoming days stability
   const upcomingForecast = [
     {
       dateStr: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -222,6 +323,7 @@ export async function GET(request: Request) {
     status: 'ok',
     station,
     allStations: STATIONS,
+    regionsSummary: REGIONS_DATA,
     verificationDays,
     upcomingForecast
   });
