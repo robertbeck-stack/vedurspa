@@ -97,17 +97,31 @@
         parentDiv.appendChild(pill);
       }
 
-      // Einnig: Bæta við AI hitagildi í hitadálkinn ("Lægsti / Hæsti hiti")
+      // Einnig: Bæta við AI hitagildi í hitadálkinn ("Lægsti / Hæsti hiti" í dálki 5) og vindgildi í dálki 6
       const tr = h4.closest('tr');
       if (tr) {
         const cells = tr.querySelectorAll('td');
-        // Í töflunni er hiti venjulega í dálki 5 (0-indexed)
+        // Í töflunni er hiti í dálki 5 (0-indexed)
         if (cells.length >= 6 && !cells[5].querySelector('.vedurvaktin-cell-ai')) {
+          const tempDiffStr = dayData.diffs.tempDiff > 0 ? `+${dayData.diffs.tempDiff}°C` : `${dayData.diffs.tempDiff}°C`;
+          const tempBadgeBg = Math.abs(dayData.diffs.tempDiff) >= 2 ? '#fef2f2' : '#f0fdf4';
+          const tempBadgeCol = Math.abs(dayData.diffs.tempDiff) >= 2 ? '#b91c1c' : '#15803d';
+
           const aiTempNote = document.createElement('div');
           aiTempNote.className = 'vedurvaktin-cell-ai';
-          aiTempNote.style.cssText = 'font-size: 11px; font-weight: 700; color: #1d4ed8; margin-top: 2px;';
-          aiTempNote.textContent = `AI: ${dayData.ai.temp > 0 ? '+' : ''}${dayData.ai.temp}°C`;
+          aiTempNote.style.cssText = 'font-size: 11px; font-weight: 700; color: #1d4ed8; margin-top: 2px; line-height: 1.2;';
+          aiTempNote.innerHTML = `AI: ${dayData.ai.temp > 0 ? '+' : ''}${dayData.ai.temp} °C <span style="font-size: 9px; font-weight: 600; background: ${tempBadgeBg}; color: ${tempBadgeCol}; padding: 0 4px; border-radius: 3px; margin-left: 2px;">(${tempDiffStr})</span>`;
           cells[5].appendChild(aiTempNote);
+        }
+
+        // Í töflunni er vindur í dálki 6 (0-indexed)
+        if (cells.length >= 7 && !cells[6].querySelector('.vedurvaktin-cell-wind')) {
+          const isGusty = dayData.ai.gust >= 20;
+          const aiWindNote = document.createElement('div');
+          aiWindNote.className = 'vedurvaktin-cell-wind';
+          aiWindNote.style.cssText = `font-size: 10px; margin-top: 2px; line-height: 1.2; ${isGusty ? 'color: #dc2626; font-weight: 700;' : 'color: #475569;'}`;
+          aiWindNote.textContent = `AI: ${dayData.ai.wind} m/s (hviða ${dayData.ai.gust})`;
+          cells[6].appendChild(aiWindNote);
         }
       }
     });
