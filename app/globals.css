@@ -1,24 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #080c14;
-  --bg-surface: #0f172a;
-  --bg-surface-elevated: #1e293b;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(255, 255, 255, 0.16);
+  /* Official Vedur.is Palette */
+  --navy-primary: #0f4678;
+  --navy-dark: #0a2e50;
+  --navy-light: #165b99;
+  --blue-accent: #336aef;
+  --blue-soft: #e0f2fe;
   
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --bg-primary: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-muted: #f8fafc;
+  
+  --border-color: #d8dce1;
+  --border-highlight: #0f4678;
+  --border-subtle: #e2e8f0;
+  
+  --text-main: #1e293b;
+  --text-muted: #475569;
   --text-dim: #64748b;
   
-  --accent-blue: #38bdf8;
-  --accent-purple: #c084fc;
-  --accent-emerald: #10b981;
-  --accent-rose: #f43f5e;
-  --accent-amber: #f59e0b;
+  --accent-blue: #0284c7;
+  --accent-purple: #7e22ce;
+  --accent-emerald: #059669;
+  --accent-rose: #dc2626;
+  --accent-amber: #d97706;
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Lexend', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(15, 70, 120, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 4px 12px 0 rgba(15, 70, 120, 0.12);
 }
 
 * {
@@ -36,6 +51,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
 .mono {
   font-family: var(--font-mono);
 }
@@ -47,41 +66,176 @@ body {
   padding: 1.25rem 0.5rem;
 }
 
+/* Vedur.is Top Utility Bar */
+.vedur-utility-bar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  padding: 0.4rem 0;
+}
+
+.vedur-utility-content {
+  width: 96%;
+  max-width: 1760px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vedur-utility-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.vedur-utility-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.vedur-utility-link:hover {
+  color: var(--navy-primary);
+}
+
+.vedur-utility-pill {
+  background: var(--navy-primary);
+  color: #ffffff !important;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+/* Vedur.is Main Site Header */
+.vedur-header {
+  background: #ffffff;
+  border-bottom: 2px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.vedur-header-main {
+  width: 96%;
+  max-width: 1760px;
+  margin: 0 auto;
+  padding: 0.85rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.vedur-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: var(--navy-primary);
+}
+
+.vedur-logo-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--navy-primary);
+  line-height: 1.15;
+}
+
+.vedur-logo-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Search bar on vedur.is */
+.vedur-search-input {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 0.45rem 1rem 0.45rem 2.2rem;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  outline: none;
+  width: 220px;
+  transition: all 0.2s;
+}
+
+.vedur-search-input:focus {
+  background: #ffffff;
+  border-color: var(--navy-primary);
+  box-shadow: 0 0 0 3px rgba(15, 70, 120, 0.15);
+  width: 260px;
+}
+
+/* Nav links on vedur.is */
+.vedur-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  overflow-x: auto;
+}
+
+.vedur-nav-item {
+  color: var(--navy-primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.vedur-nav-item:hover {
+  background: #f1f5f9;
+}
+
+.vedur-nav-item.active {
+  background: #e0f2fe;
+  color: var(--navy-primary);
+  border-bottom: 2px solid var(--navy-primary);
+}
+
+/* Glass panel adapted to vedur.is white cards */
 .glass-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
 }
 
-/* Day & Station Nav Buttons */
+/* Station and Mode Nav Buttons */
 .tab-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.9rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  background: var(--bg-surface);
+  background: #ffffff;
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: var(--navy-primary);
   transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
 .tab-pill:hover {
-  color: var(--text-main);
-  border-color: var(--border-highlight);
-  background: var(--bg-surface-elevated);
+  color: var(--navy-dark);
+  border-color: var(--navy-primary);
+  background: #f8fafc;
 }
 
 .tab-pill.active {
-  background: #0284c7;
+  background: var(--navy-primary);
   color: #ffffff;
-  border-color: #38bdf8;
-  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+  border-color: var(--navy-primary);
+  box-shadow: 0 3px 10px rgba(15, 70, 120, 0.25);
 }
 
 /* 6-Column Lead Cards Grid */
@@ -104,9 +258,9 @@ body {
 }
 
 .lead-col-card {
-  background: var(--bg-surface);
+  background: #ffffff;
   border: 1px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 10px;
   padding: 1.15rem;
   display: flex;
   flex-direction: column;
@@ -114,12 +268,13 @@ body {
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-card);
 }
 
 .lead-col-card:hover {
-  border-color: var(--border-highlight);
+  border-color: var(--navy-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-hover);
 }
 
 .lead-col-card::before {
@@ -148,34 +303,34 @@ body {
 }
 
 .badge-emerald {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
 }
 
 .badge-blue {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
 }
 
 .badge-amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
 }
 
 .badge-rose {
-  background: rgba(244, 63, 94, 0.15);
-  color: #f43f5e;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
 }
 
 /* Accuracy bar */
 .accuracy-bar-track {
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #e2e8f0;
   border-radius: 9999px;
   overflow: hidden;
   margin-top: 0.4rem;
@@ -185,6 +340,46 @@ body {
   height: 100%;
   border-radius: 9999px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Vedur.is Footer */
+.vedur-footer {
+  background: var(--navy-primary);
+  color: #ffffff;
+  margin-top: 3rem;
+  padding: 2.5rem 0 1.5rem;
+  border-top: 4px solid #0a2e50;
+}
+
+.vedur-footer-content {
+  width: 96%;
+  max-width: 1760px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 900px) {
+  .vedur-footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.vedur-footer-bottom {
+  width: 96%;
+  max-width: 1760px;
+  margin: 1.5rem auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #93c5fd;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* Animations */

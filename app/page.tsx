@@ -23,7 +23,8 @@ import {
   Filter,
   Zap,
   ArrowRight,
-  Check
+  Check,
+  Search
 } from 'lucide-react';
 
 export default function Home() {
@@ -147,27 +148,27 @@ export default function Home() {
     return (
       <div style={{ position: 'relative', width: '100%', overflowX: 'auto' }}>
         <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', minWidth: '600px', height: 'auto', display: 'block' }}>
-          <line x1={padX} y1={padY} x2={chartW - padX} y2={padY} stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
+          <line x1={padX} y1={padY} x2={chartW - padX} y2={padY} stroke="rgba(0,0,0,0.08)" strokeDasharray="3 3" />
           <text x={padX - 8} y={padY + 4} fill="var(--text-dim)" fontSize="9" textAnchor="end">Mikil villa</text>
           
-          <line x1={padX} y1={chartH / 2} x2={chartW - padX} y2={chartH / 2} stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
+          <line x1={padX} y1={chartH / 2} x2={chartW - padX} y2={chartH / 2} stroke="rgba(0,0,0,0.08)" strokeDasharray="3 3" />
           <text x={padX - 8} y={chartH / 2 + 3} fill="var(--text-dim)" fontSize="9" textAnchor="end">Meðal</text>
 
-          <line x1={padX} y1={chartH - padY} x2={chartW - padX} y2={chartH - padY} stroke="#10b981" strokeWidth="1.5" />
-          <text x={padX - 8} y={chartH - padY + 3} fill="#10b981" fontSize="9" fontWeight="700" textAnchor="end">Engin villa</text>
+          <line x1={padX} y1={chartH - padY} x2={chartW - padX} y2={chartH - padY} stroke="#059669" strokeWidth="1.5" />
+          <text x={padX - 8} y={chartH - padY + 3} fill="#059669" fontSize="9" fontWeight="700" textAnchor="end">Engin villa</text>
 
-          <path d={pathTemp} fill="none" stroke="#f43f5e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={pathWind} fill="none" stroke="#c084fc" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={pathTemp} fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={pathWind} fill="none" stroke="#7e22ce" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
           {points.map((p) => (
             <g key={p.leadDays}>
-              <circle cx={p.x} cy={p.yTemp} r="5" fill="#0f172a" stroke="#f43f5e" strokeWidth="2.5" />
-              <text x={p.x} y={p.yTemp - 9} textAnchor="middle" fill="#f43f5e" fontSize="10" fontWeight="800" fontFamily="var(--font-mono)">
+              <circle cx={p.x} cy={p.yTemp} r="5" fill="#ffffff" stroke="#dc2626" strokeWidth="2.5" />
+              <text x={p.x} y={p.yTemp - 9} textAnchor="middle" fill="#dc2626" fontSize="10" fontWeight="800" fontFamily="var(--font-mono)">
                 {p.tempError}°C
               </text>
 
-              <circle cx={p.x} cy={p.yWind} r="4.5" fill="#0f172a" stroke="#c084fc" strokeWidth="2.5" />
-              <text x={p.x} y={p.yWind + 14} textAnchor="middle" fill="#c084fc" fontSize="9.5" fontWeight="800" fontFamily="var(--font-mono)">
+              <circle cx={p.x} cy={p.yWind} r="4.5" fill="#ffffff" stroke="#7e22ce" strokeWidth="2.5" />
+              <text x={p.x} y={p.yWind + 14} textAnchor="middle" fill="#7e22ce" fontSize="9.5" fontWeight="800" fontFamily="var(--font-mono)">
                 {p.windError}m/s
               </text>
 
@@ -178,14 +179,14 @@ export default function Home() {
           ))}
         </svg>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem', padding: '0.4rem 0.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', fontSize: '0.78rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem', padding: '0.5rem 0.75rem', background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.78rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#f43f5e', fontWeight: 700 }}>
-              <span style={{ width: '12px', height: '3px', background: '#f43f5e', borderRadius: '2px', display: 'inline-block' }}></span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#dc2626', fontWeight: 700 }}>
+              <span style={{ width: '12px', height: '3px', background: '#dc2626', borderRadius: '2px', display: 'inline-block' }}></span>
               🔴 Hitaskekkja (°C villa)
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#c084fc', fontWeight: 700 }}>
-              <span style={{ width: '12px', height: '3px', background: '#c084fc', borderRadius: '2px', display: 'inline-block' }}></span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#7e22ce', fontWeight: 700 }}>
+              <span style={{ width: '12px', height: '3px', background: '#7e22ce', borderRadius: '2px', display: 'inline-block' }}></span>
               🟣 Vindskekkja (m/s villa)
             </span>
           </div>
@@ -262,7 +263,7 @@ export default function Home() {
     });
 
     return (
-      <div style={{ width: '100%', overflowX: 'auto', background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '0.85rem 0.5rem' }}>
+      <div style={{ width: '100%', overflowX: 'auto', background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '0.85rem 0.5rem', boxShadow: 'var(--shadow-sm)' }}>
         <svg viewBox={`0 0 ${chartW} ${chartH}`} style={{ width: '100%', minWidth: '780px', height: 'auto', display: 'block' }}>
           
           {/* Month vertical grid lines and column backgrounds */}
@@ -278,7 +279,7 @@ export default function Home() {
                     y={padY} 
                     width={nextX - m.x} 
                     height={innerH} 
-                    fill="rgba(16, 185, 129, 0.05)" 
+                    fill="rgba(5, 150, 105, 0.06)" 
                   />
                 )}
                 <line 
@@ -286,7 +287,7 @@ export default function Home() {
                   y1={padY} 
                   x2={m.x} 
                   y2={chartH - padBottom} 
-                  stroke="rgba(255, 255, 255, 0.08)" 
+                  stroke="rgba(0, 0, 0, 0.06)" 
                   strokeWidth="1" 
                   strokeDasharray="2 3" 
                 />
@@ -296,14 +297,14 @@ export default function Home() {
                   y1={chartH - padBottom} 
                   x2={m.x} 
                   y2={chartH - padBottom + 5} 
-                  stroke="rgba(255, 255, 255, 0.3)" 
+                  stroke="rgba(0, 0, 0, 0.25)" 
                   strokeWidth="1.5" 
                 />
                 {/* Month Name label */}
                 <text 
                   x={m.x + 3} 
                   y={chartH - 12} 
-                  fill={m.isYear ? '#38bdf8' : isSummer ? '#10b981' : 'var(--text-muted)'} 
+                  fill={m.isYear ? '#0f4678' : isSummer ? '#059669' : 'var(--text-muted)'} 
                   fontSize={m.isYear ? '10' : '9.5'} 
                   fontWeight={m.isYear ? '800' : '600'}
                   textAnchor="start"
@@ -315,23 +316,23 @@ export default function Home() {
           })}
 
           {/* Threshold lines */}
-          <line x1={padX} y1={getY(90)} x2={chartW - padX} y2={getY(90)} stroke="#10b981" strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />
-          <text x={chartW - padX + 5} y={getY(90) + 3} fill="#10b981" fontSize="9" fontWeight="700">90%</text>
+          <line x1={padX} y1={getY(90)} x2={chartW - padX} y2={getY(90)} stroke="#059669" strokeWidth="1" strokeDasharray="3 3" opacity="0.45" />
+          <text x={chartW - padX + 5} y={getY(90) + 3} fill="#059669" fontSize="9" fontWeight="700">90%</text>
 
-          <line x1={padX} y1={getY(70)} x2={chartW - padX} y2={getY(70)} stroke="#f59e0b" strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />
-          <text x={chartW - padX + 5} y={getY(70) + 3} fill="#f59e0b" fontSize="9" fontWeight="700">70%</text>
+          <line x1={padX} y1={getY(70)} x2={chartW - padX} y2={getY(70)} stroke="#d97706" strokeWidth="1" strokeDasharray="3 3" opacity="0.45" />
+          <text x={chartW - padX + 5} y={getY(70) + 3} fill="#d97706" fontSize="9" fontWeight="700">70%</text>
 
-          <line x1={padX} y1={getY(50)} x2={chartW - padX} y2={getY(50)} stroke="#f43f5e" strokeWidth="1" strokeDasharray="3 3" opacity="0.35" />
-          <text x={chartW - padX + 5} y={getY(50) + 3} fill="#f43f5e" fontSize="9" fontWeight="700">50%</text>
+          <line x1={padX} y1={getY(50)} x2={chartW - padX} y2={getY(50)} stroke="#dc2626" strokeWidth="1" strokeDasharray="3 3" opacity="0.45" />
+          <text x={chartW - padX + 5} y={getY(50) + 3} fill="#dc2626" fontSize="9" fontWeight="700">50%</text>
 
           {/* X axis baseline */}
-          <line x1={padX} y1={chartH - padBottom} x2={chartW - padX} y2={chartH - padBottom} stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.5" />
+          <line x1={padX} y1={chartH - padBottom} x2={chartW - padX} y2={chartH - padBottom} stroke="#cbd5e1" strokeWidth="1.5" />
 
           {/* Daily subtle line */}
-          <path d={pathDaily} fill="none" stroke="rgba(56, 189, 248, 0.25)" strokeWidth="1" />
+          <path d={pathDaily} fill="none" stroke="rgba(15, 70, 120, 0.2)" strokeWidth="1" />
 
-          {/* Smooth 14-day Rolling Average Line (BOLD) */}
-          <path d={pathTrend} fill="none" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Smooth 14-day Rolling Average Line (BOLD NAVY) */}
+          <path d={pathTrend} fill="none" stroke="#0f4678" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
           {/* Daily Dots */}
           {points.map((p, idx) => {
@@ -344,8 +345,8 @@ export default function Home() {
                 cy={p.y}
                 r={p.accuracy < 60 ? '4' : '2.5'}
                 fill={dotColor}
-                stroke="#0f172a"
-                strokeWidth="1"
+                stroke="#ffffff"
+                strokeWidth="1.5"
                 style={{ cursor: 'pointer' }}
                 onClick={() => setSelectedHistoryDay(p)}
               />
@@ -353,12 +354,12 @@ export default function Home() {
           })}
         </svg>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0.6rem', marginTop: '0.4rem', fontSize: '0.74rem', color: 'var(--text-dim)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.6rem 0.2rem', marginTop: '0.4rem', fontSize: '0.74rem', color: 'var(--text-dim)', borderTop: '1px solid var(--border-color)' }}>
           <span style={{ color: 'var(--text-muted)' }}>← Fyrir 365 dögum (Nóvember 2025)</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '12px', height: '3px', background: '#38bdf8', borderRadius: '2px' }}></span>
-              <strong>Blá lína:</strong> 14-daga hlaupandi meðaltal (Árstíðasveifla)
+              <span style={{ width: '12px', height: '3px', background: '#0f4678', borderRadius: '2px' }}></span>
+              <strong style={{ color: 'var(--navy-primary)' }}>Blá lína:</strong> 14-daga hlaupandi meðaltal (Árstíðasveifla)
             </span>
             <span>🟢 Sumarstöðugleiki | 🔴 Haust- og vetrardýfur</span>
           </div>
@@ -417,7 +418,7 @@ export default function Home() {
     const weekDaysLabels = ['Mán', 'Þri', 'Mið', 'Fim', 'Fös', 'Lau', 'Sun'];
 
     return (
-      <div style={{ width: '100%', overflowX: 'auto', background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+      <div style={{ width: '100%', overflowX: 'auto', background: '#ffffff', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
         <div style={{ minWidth: '850px' }}>
           
           {/* Month headers grid (Columns: 32px weekday labels + 53 week columns) */}
@@ -427,7 +428,7 @@ export default function Home() {
             gap: '3px',
             marginBottom: '6px',
             fontSize: '0.72rem',
-            color: 'var(--text-dim)',
+            color: 'var(--navy-primary)',
             fontWeight: 700
           }}>
             <div /> {/* empty space for weekday labels column */}
@@ -485,8 +486,8 @@ export default function Home() {
                         height: '16px',
                         borderRadius: '3px',
                         backgroundColor: scoreColor,
-                        outline: isSelected ? '2px solid #ffffff' : 'none',
-                        boxShadow: isSelected ? '0 0 8px #38bdf8' : 'none',
+                        outline: isSelected ? '2px solid var(--navy-primary)' : 'none',
+                        boxShadow: isSelected ? '0 0 6px rgba(15, 70, 120, 0.5)' : 'none',
                         cursor: 'pointer',
                         transition: 'transform 0.1s ease'
                       }}
@@ -510,116 +511,183 @@ export default function Home() {
   };
 
   return (
-    <div className="widescreen-container">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
       
-      {/* Top Header */}
-      <header className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.25rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <span className="badge badge-emerald">
-                <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Spádómur vs. Raunveruleiki
-              </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Rauntíma- og 365 daga söguleg gögn (vedur.is)
-              </span>
-            </div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
-              Hversu rétt var veðurspáin?
-            </h1>
+      {/* 1. Official Vedur.is Top Utility Bar */}
+      <div className="vedur-utility-bar">
+        <div className="vedur-utility-content">
+          <div className="vedur-utility-links">
+            <span style={{ fontWeight: 700, color: 'var(--navy-primary)' }}>Veðurstofa Íslands</span>
+            <span style={{ color: 'var(--border-color)' }}>|</span>
+            <a href="https://www.vedur.is" target="_blank" rel="noreferrer" className="vedur-utility-link">Þjónusta og rannsóknir</a>
+            <a href="https://www.vedur.is" target="_blank" rel="noreferrer" className="vedur-utility-link vedur-utility-pill">vedur.is</a>
+            <a href="https://timarit.is" target="_blank" rel="noreferrer" className="vedur-utility-link">Eldri vefur</a>
+            <a href="#" onClick={(e) => e.preventDefault()} className="vedur-utility-link">EN</a>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button 
-              onClick={() => fetchData(selectedStationId)} 
-              disabled={loading}
-              className="tab-pill"
-              style={{ background: 'var(--bg-surface-elevated)' }}
-            >
-              <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
-              <span>{loading ? 'Uppfæri...' : 'Endurnýja'}</span>
-            </button>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={12} color="var(--navy-primary)" />
+              {new Date().toLocaleDateString('is-IS', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
+            <span style={{ color: '#059669', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669', display: 'inline-block' }}></span>
+              Gagnaveita virk
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Station Selection Chips Bar */}
-        <div style={{ marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-              Veldu veðurstöð eða allt landið:
-            </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)', fontWeight: 600 }}>
-              Valið: {activeStation.fullName}
-            </span>
+      {/* 2. Official Vedur.is Main Site Header */}
+      <header className="vedur-header">
+        <div className="vedur-header-main">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+            {/* Logo */}
+            <a href="#" onClick={(e) => e.preventDefault()} className="vedur-logo-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 80 80" fill="#0f4678" aria-label="Veðurstofa Íslands logo">
+                <path d="M48.8877 18.0154L31.0909 35.8016V0.240051L48.8877 18.0154ZM17.7754 31.3309L0 49.1277H35.5615L17.7754 31.3309ZM31.0909 62.4218L48.8877 80.2401V44.6893L31.0909 62.4218ZM62.1817 49.1277L80 31.3309H44.4492L62.1817 49.1277Z"></path>
+              </svg>
+              <div>
+                <div className="vedur-logo-title">Veðurstofa Íslands</div>
+                <div className="vedur-logo-subtitle">Veður, loftslag, haffræði, jarðvá og vatnafar</div>
+              </div>
+            </a>
+
+            {/* Pill Search */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Leita að stað eða veðurstöð..." 
+                className="vedur-search-input"
+              />
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.2rem' }}>
-            {stations.map((st: any) => (
-              <button
-                key={st.obsId}
-                onClick={() => setSelectedStationId(st.obsId)}
-                className={`tab-pill ${selectedStationId === st.obsId ? 'active' : ''}`}
-                style={{ 
-                  padding: '0.45rem 0.85rem', 
-                  fontSize: '0.8rem',
-                  fontWeight: st.obsId === 0 ? 800 : 600,
-                  border: st.obsId === 0 ? '1px solid rgba(56, 189, 248, 0.4)' : undefined
-                }}
-              >
-                {st.obsId === 0 ? <Globe2 size={13} color="var(--accent-blue)" /> : <MapPin size={12} />}
-                <span>{st.name}</span>
-                <span style={{ fontSize: '0.65rem', opacity: 0.8, background: 'rgba(0,0,0,0.25)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                  {st.region}
-                </span>
-              </button>
-            ))}
-          </div>
+
+          {/* Nav links */}
+          <nav className="vedur-nav">
+            <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('verification'); }} className={`vedur-nav-item ${viewMode === 'verification' ? 'active' : ''}`}>Veður & Spár</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('aiForecast'); }} className={`vedur-nav-item ${viewMode === 'aiForecast' ? 'active' : ''}`} style={{ color: 'var(--navy-primary)', fontWeight: 800 }}>🤖 AI-Snjallspá</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('history'); }} className={`vedur-nav-item ${viewMode === 'history' ? 'active' : ''}`}>🗓️ Ársgreining</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('outlook'); }} className={`vedur-nav-item ${viewMode === 'outlook' ? 'active' : ''}`}>Áreiðanleiki</a>
+            <a href="https://en.vedur.is/earthquakes-and-volcanism/earthquakes/" target="_blank" rel="noreferrer" className="vedur-nav-item" style={{ opacity: 0.75 }}>Jarðskjálftar</a>
+            <a href="https://www.vedur.is/skjalf/ofanflod/" target="_blank" rel="noreferrer" className="vedur-nav-item" style={{ opacity: 0.75 }}>Snjóflóð</a>
+            <span className="badge-amber" style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+              Engin gul viðvörun
+            </span>
+          </nav>
         </div>
       </header>
 
-      {/* Main Mode Toggle */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          
-          <button
-            onClick={() => setViewMode('history')}
-            className={`tab-pill ${viewMode === 'history' ? 'active' : ''}`}
-            style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-          >
-            <History size={15} color={viewMode === 'history' ? '#fff' : 'var(--accent-emerald)'} />
-            <span>🗓️ Heilt ár (365 daga hitakort & sveiflur)</span>
-          </button>
+      {/* Main Container */}
+      <main className="widescreen-container" style={{ flex: '1 0 auto', paddingBottom: '2rem' }}>
+        
+        {/* Context Subheader Card */}
+        <section className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <span className="badge badge-emerald">
+                  <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Spádómur vs. Raunveruleiki
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Rauntíma- og 365 daga söguleg gögn (vedur.is)
+                </span>
+              </div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--navy-primary)' }}>
+                Hversu rétt var veðurspáin?
+              </h1>
+            </div>
 
-          <button
-            onClick={() => setViewMode('aiForecast')}
-            className={`tab-pill ${viewMode === 'aiForecast' ? 'active' : ''}`}
-            style={{ 
-              padding: '0.65rem 1.25rem', 
-              fontSize: '0.85rem',
-              borderColor: viewMode === 'aiForecast' ? 'var(--accent-purple)' : undefined
-            }}
-          >
-            <Sparkles size={15} color={viewMode === 'aiForecast' ? '#fff' : 'var(--accent-purple)'} />
-            <span>🤖 AI-Leiðrétt Spá (Snjallspá)</span>
-          </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button 
+                onClick={() => fetchData(selectedStationId)} 
+                disabled={loading}
+                className="tab-pill"
+              >
+                <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
+                <span>{loading ? 'Uppfæri...' : 'Endurnýja gögn'}</span>
+              </button>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setViewMode('verification')}
-            className={`tab-pill ${viewMode === 'verification' ? 'active' : ''}`}
-            style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-          >
-            <BarChart3 size={15} />
-            <span>Sannprófun dagsins (D-5 til D-0)</span>
-          </button>
+          {/* Station Selection Chips Bar */}
+          <div style={{ marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                Veldu landshluta eða veðurstöð:
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--navy-primary)', fontWeight: 700 }}>
+                Valið: {activeStation.fullName}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.2rem' }}>
+              {stations.map((st: any) => (
+                <button
+                  key={st.obsId}
+                  onClick={() => setSelectedStationId(st.obsId)}
+                  className={`tab-pill ${selectedStationId === st.obsId ? 'active' : ''}`}
+                  style={{ 
+                    padding: '0.45rem 0.85rem', 
+                    fontSize: '0.8rem',
+                    fontWeight: st.obsId === 0 ? 800 : 600,
+                    border: st.obsId === 0 ? '1px solid var(--navy-primary)' : undefined
+                  }}
+                >
+                  {st.obsId === 0 ? <Globe2 size={13} color={selectedStationId === 0 ? '#fff' : 'var(--navy-primary)'} /> : <MapPin size={12} />}
+                  <span>{st.name}</span>
+                  <span style={{ fontSize: '0.65rem', opacity: 0.85, background: selectedStationId === st.obsId ? 'rgba(255,255,255,0.2)' : 'rgba(15,70,120,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
+                    {st.region}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
 
-          <button
-            onClick={() => setViewMode('outlook')}
-            className={`tab-pill ${viewMode === 'outlook' ? 'active' : ''}`}
-            style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
-          >
-            <ShieldCheck size={15} />
-            <span>Spástöðugleiki framundan (Næstu 4 dagar)</span>
-          </button>
-        </div>
+        {/* Main Mode Toggle */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            
+            <button
+              onClick={() => setViewMode('history')}
+              className={`tab-pill ${viewMode === 'history' ? 'active' : ''}`}
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
+            >
+              <History size={15} color={viewMode === 'history' ? '#fff' : 'var(--navy-primary)'} />
+              <span>🗓️ Heilt ár (365 daga hitakort & sveiflur)</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('aiForecast')}
+              className={`tab-pill ${viewMode === 'aiForecast' ? 'active' : ''}`}
+              style={{ 
+                padding: '0.65rem 1.25rem', 
+                fontSize: '0.85rem',
+                borderColor: viewMode === 'aiForecast' ? 'var(--navy-primary)' : undefined
+              }}
+            >
+              <Sparkles size={15} color={viewMode === 'aiForecast' ? '#fff' : 'var(--navy-primary)'} />
+              <span>🤖 AI-Leiðrétt Spá (Snjallspá)</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('verification')}
+              className={`tab-pill ${viewMode === 'verification' ? 'active' : ''}`}
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
+            >
+              <BarChart3 size={15} color={viewMode === 'verification' ? '#fff' : 'var(--navy-primary)'} />
+              <span>Sannprófun dagsins (D-5 til D-0)</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('outlook')}
+              className={`tab-pill ${viewMode === 'outlook' ? 'active' : ''}`}
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}
+            >
+              <ShieldCheck size={15} color={viewMode === 'outlook' ? '#fff' : 'var(--navy-primary)'} />
+              <span>Spástöðugleiki framundan (Næstu 4 dagar)</span>
+            </button>
+          </div>
 
         {/* Day Selectors if in verification mode */}
         {viewMode === 'verification' && (
@@ -649,10 +717,10 @@ export default function Home() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           {/* ANSWER TO USER QUESTION: AF HVERJU SVEIFLAST LÍNURITIÐ? */}
-          <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid var(--accent-blue)', background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, rgba(15, 23, 42, 0.9) 100%)' }}>
+          <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid var(--navy-primary)', background: '#ffffff' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-              <HelpCircle size={18} color="var(--accent-blue)" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+              <HelpCircle size={18} color="var(--navy-primary)" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                 Af hverju sveiflast línuritið og hvenær klikkar spáin í raun?
               </h3>
             </div>
@@ -660,16 +728,16 @@ export default function Home() {
               Í fyrri stuttu 35 daga tilrauninni var gervibylgja vegna endurtekinnar 7-daga lotu. Hér fyrir neðan er nú <strong>raunverulegt 365 daga líkan</strong> sem sýnir hvernig íslenskt veður hegðar sér í raun:
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem', fontSize: '0.78rem', color: 'var(--text-main)' }}>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '8px' }}>
-                <strong>☀️ Sumartímabil (Júní–Ágúst): 91% nákvæmni</strong><br/>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', padding: '0.75rem', borderRadius: '8px' }}>
+                <strong style={{ color: 'var(--navy-primary)' }}>☀️ Sumartímabil (Júní–Ágúst): 91% nákvæmni</strong><br/>
                 Nákvæmnin er stöðug og mikil í 3 mánuði samfellt! Fáar lægðir og engin óvissa um snjó eða frost.
               </div>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '8px' }}>
-                <strong>🌪️ Lægðasyrpur (Haust & Vetur): Dýfur í 2–3 daga</strong><br/>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', padding: '0.75rem', borderRadius: '8px' }}>
+                <strong style={{ color: 'var(--navy-primary)' }}>🌪️ Lægðasyrpur (Haust & Vetur): Dýfur í 2–3 daga</strong><br/>
                 Lægðalestir koma í skörpum gusum þar sem nákvæmni fellur tímabundið niður í 50–65%.
               </div>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '8px' }}>
-                <strong>❄️ Stillt vetrarfrost & hæðir: 94–98% nákvæmni</strong><br/>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', padding: '0.75rem', borderRadius: '8px' }}>
+                <strong style={{ color: 'var(--navy-primary)' }}>❄️ Stillt vetrarfrost & hæðir: 94–98% nákvæmni</strong><br/>
                 Þegar hæð eða jafnt norðanfrost bítur sig fast stendur mikil nákvæmni yfir í 5–12 daga samfleytt.
               </div>
             </div>
@@ -679,7 +747,7 @@ export default function Home() {
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.85rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                   🗓️ Dagatalshitakort: Allt árið (365 dagar bornir saman)
                 </h3>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -690,16 +758,16 @@ export default function Home() {
               {/* Legend */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.75rem' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#10b981', borderRadius: '2px' }}></span> ≥90% (Frábært)
+                  <span style={{ width: '10px', height: '10px', background: '#059669', borderRadius: '2px' }}></span> ≥90% (Frábært)
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#38bdf8', borderRadius: '2px' }}></span> 80–89%
+                  <span style={{ width: '10px', height: '10px', background: '#0284c7', borderRadius: '2px' }}></span> 80–89%
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#f59e0b', borderRadius: '2px' }}></span> 65–79%
+                  <span style={{ width: '10px', height: '10px', background: '#d97706', borderRadius: '2px' }}></span> 65–79%
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ width: '10px', height: '10px', background: '#f43f5e', borderRadius: '2px' }}></span> &lt;65% (Klikkaði)
+                  <span style={{ width: '10px', height: '10px', background: '#dc2626', borderRadius: '2px' }}></span> &lt;65% (Klikkaði)
                 </span>
               </div>
             </div>
@@ -709,7 +777,7 @@ export default function Home() {
 
             {/* Selected day preview */}
             {selectedHistoryDay && (
-              <div style={{ marginTop: '1rem', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '0.85rem 1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ marginTop: '1rem', background: '#f8fafc', border: '1px solid var(--navy-primary)', borderRadius: '10px', padding: '0.85rem 1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', boxShadow: 'var(--shadow-sm)' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
                     <span className="badge badge-blue">
@@ -719,7 +787,7 @@ export default function Home() {
                       Veðurgerð: <strong>{selectedHistoryDay.regime}</strong>
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600 }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--navy-primary)', fontWeight: 700 }}>
                     {selectedHistoryDay.why}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
@@ -740,7 +808,7 @@ export default function Home() {
 
             {/* Continuous 365-day trend line with 14-day rolling average */}
             <div style={{ marginTop: '1.5rem' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.5rem' }}>
                 📈 Nákvæmnisferill yfir allt árið (365 dagar með 14-daga hlaupandi meðaltali):
               </div>
               {renderYearTrendChart()}
@@ -750,7 +818,7 @@ export default function Home() {
           {/* 12 MONTHS SUMMARY BREAKDOWN */}
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                 📊 Árstíðir og Mánuðir: Hvaða mánuðir eru erfiðastir fyrir spálíkön?
               </h3>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -770,7 +838,7 @@ export default function Home() {
                     className="lead-col-card"
                     style={{ 
                       padding: '0.85rem',
-                      background: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-surface-elevated)',
+                      background: isSelected ? '#e0f2fe' : '#ffffff',
                       borderTop: `3px solid ${scoreColor}`,
                       cursor: 'pointer'
                     }}
@@ -784,7 +852,7 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fff' }}>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                       {m.monthName}
                     </div>
 
@@ -809,7 +877,7 @@ export default function Home() {
           {patternsAnalysis && (
             <div className="glass-panel" style={{ padding: '1.5rem' }}>
               <div style={{ marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff' }}>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                   🔍 Greining: Hvenær klikkar veðurspáin og hvenær er hún rétt?
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -824,18 +892,18 @@ export default function Home() {
                     className="lead-col-card"
                     style={{ 
                       borderTop: `4px solid ${reg.color}`,
-                      background: 'var(--bg-surface-elevated)'
+                      background: '#ffffff'
                     }}
                   >
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
                         <span style={{ fontSize: '1.2rem' }}>{reg.icon}</span>
-                        <span className="badge" style={{ background: `${reg.color}22`, color: reg.color, border: `1px solid ${reg.color}44`, fontSize: '0.82rem' }}>
+                        <span className="badge" style={{ background: `${reg.color}18`, color: reg.color, border: `1px solid ${reg.color}44`, fontSize: '0.82rem', fontWeight: 700 }}>
                           {reg.avgAccuracy}% Nákvæmni
                         </span>
                       </div>
 
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', marginBottom: '0.2rem' }}>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.2rem' }}>
                         {reg.name}
                       </h4>
 
@@ -880,8 +948,9 @@ export default function Home() {
               className="glass-panel" 
               style={{ 
                 padding: '1.4rem', 
-                background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%)',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
+                background: '#ffffff',
+                border: '1px solid var(--border-color)',
+                boxShadow: 'var(--shadow-card)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between'
@@ -897,7 +966,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '0.3rem' }}>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.3rem' }}>
                   {activeStation.name} – Raunveruleiki
                 </h2>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.1rem' }}>
@@ -905,11 +974,11 @@ export default function Home() {
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.9rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-blue)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       <Thermometer size={13} /> {activeStation.obsId === 0 ? 'Landsmeðalhiti' : 'Mældur hiti'}
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--navy-primary)', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
                       {currentDay.actual.avgTemp > 0 ? `+${currentDay.actual.avgTemp}` : currentDay.actual.avgTemp}°C
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
@@ -917,11 +986,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.9rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-purple)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       <Wind size={13} /> {activeStation.obsId === 0 ? 'Landsmeðalvindur' : 'Mældur vindur'}
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--navy-primary)', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
                       {currentDay.actual.avgWind} <span style={{ fontSize: '1rem', fontWeight: 600 }}>m/s</span>
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
@@ -930,20 +999,20 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ background: '#f8fafc', padding: '0.8rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--accent-amber)', fontWeight: 700, textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#b45309', fontWeight: 700, textTransform: 'uppercase' }}>
                       Veðurlag dagsins
                     </span>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                       {currentDay.actual.weatherDesc}
                     </div>
                   </div>
-                  <CloudSun size={28} color="var(--accent-amber)" />
+                  <CloudSun size={28} color="#d97706" />
                 </div>
               </div>
 
-              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'block' }}>
                     Heildargæði spáa
@@ -968,6 +1037,9 @@ export default function Home() {
               className="glass-panel" 
               style={{ 
                 padding: '1.4rem', 
+                background: '#ffffff',
+                border: '1px solid var(--border-color)',
+                boxShadow: 'var(--shadow-card)',
                 display: 'flex', 
                 flexDirection: 'column', 
                 justifyContent: 'space-between'
@@ -979,14 +1051,14 @@ export default function Home() {
                     Sjónræn skekkjurýni:
                   </span>
                   <button className="tab-pill active" style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }}>
-                    <Flame size={12} color="#f43f5e" />
+                    <Flame size={12} color="#fca5a5" />
                     <span>Hvað klikkar mest? (Hiti vs. Vindur)</span>
                   </button>
                 </div>
 
                 <div>
                   <div style={{ marginBottom: '0.5rem' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                       📊 Línurit: Hvað er að klikka í spánum eftir fyrirvara?
                     </h3>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -997,10 +1069,10 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ marginTop: '0.85rem', background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '0.75rem 1rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ marginTop: '0.85rem', background: '#f0f9ff', border: '1px solid #bae6fd', padding: '0.75rem 1rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <TrendingUp size={20} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>
-                  <strong>Helsta niðurstaða skekkjurýninnar:</strong> Á löngum fyrirvara (D-5 og D-4) er það <strong>hitastigið og lægðarbrautin</strong> sem klikkar mest (oft 4–5°C villa). Vindhraði og hviður ná hins vegar meiri stöðugleika fyrr.
+                  <strong style={{ color: 'var(--navy-primary)' }}>Helsta niðurstaða skekkjurýninnar:</strong> Á löngum fyrirvara (D-5 og D-4) er það <strong>hitastigið og lægðarbrautin</strong> sem klikkar mest (oft 4–5°C villa). Vindhraði og hviður ná hins vegar meiri stöðugleika fyrr.
                 </div>
               </div>
             </div>
@@ -1011,7 +1083,7 @@ export default function Home() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                   Þróun spárinnar eftir fyrirvara (D-5 til D-0 hlið við hlið)
                 </h3>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -1044,7 +1116,7 @@ export default function Home() {
                         </span>
                       </div>
 
-                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff', lineHeight: 1.25, marginBottom: '0.35rem' }}>
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--navy-primary)', lineHeight: 1.25, marginBottom: '0.35rem' }}>
                         {lt.title}
                       </div>
 
@@ -1052,21 +1124,21 @@ export default function Home() {
                         {renderStars(lt.score, 13)}
                       </div>
 
-                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.55rem 0.65rem', borderRadius: '8px', borderLeft: `3px solid ${scoreColor}`, marginBottom: '0.65rem' }}>
+                      <div style={{ background: '#f8fafc', padding: '0.55rem 0.65rem', borderRadius: '8px', borderLeft: `3px solid ${scoreColor}`, border: '1px solid var(--border-color)', marginBottom: '0.65rem' }}>
                         <div style={{ fontSize: '0.68rem', color: scoreColor, fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.15rem' }}>
                           ⚠️ Sökudólgur: {lt.culprit}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#fff', lineHeight: 1.35 }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', lineHeight: 1.35 }}>
                           {lt.culpritDesc}
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.65rem', borderRadius: '8px', fontSize: '0.75rem', marginBottom: '0.6rem' }}>
-                        <div style={{ marginBottom: '0.4rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', padding: '0.65rem', borderRadius: '8px', fontSize: '0.75rem', marginBottom: '0.6rem' }}>
+                        <div style={{ marginBottom: '0.4rem', paddingBottom: '0.4rem', borderBottom: '1px solid var(--border-color)' }}>
                           <span style={{ color: 'var(--text-dim)', fontSize: '0.68rem', display: 'block' }}>Hvað var spáð?</span>
-                          <span style={{ fontWeight: 800, color: 'var(--accent-blue)', fontSize: '0.88rem', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--navy-primary)', fontSize: '0.88rem', fontFamily: 'var(--font-mono)' }}>
                             {lt.temp > 0 ? `+${lt.temp}` : lt.temp}°C • {lt.wind} m/s
                           </span>
                         </div>
@@ -1107,22 +1179,22 @@ export default function Home() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
           
           {/* Header & Concept Explanation */}
-          <div className="glass-panel" style={{ padding: '2rem', borderLeft: '4px solid var(--accent-purple)' }}>
+          <div className="glass-panel" style={{ padding: '2rem', borderLeft: '4px solid var(--navy-primary)', background: '#ffffff' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <span className="badge" style={{ background: 'rgba(192, 132, 252, 0.15)', color: 'var(--accent-purple)', borderColor: 'rgba(192, 132, 252, 0.3)' }}>
+                <span className="badge badge-blue">
                   🤖 AI-LEIÐRÉTT VEÐURSPÁ (MODEL OUTPUT STATISTICS / ML BIAS CORRECTION)
                 </span>
-                <span className="badge badge-blue">
+                <span className="badge badge-emerald">
                   {activeStation.region}
                 </span>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Valin stöð: <strong style={{ color: '#fff' }}>{activeStation.fullName}</strong>
+                Valin stöð: <strong style={{ color: 'var(--navy-primary)' }}>{activeStation.fullName}</strong>
               </span>
             </div>
 
-            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.5rem' }}>
               Landshlutaaðlöguð Snjallspá & Sannprófun aftur í tímann
             </h2>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: '1200px', marginBottom: '1.25rem' }}>
@@ -1131,8 +1203,8 @@ export default function Home() {
             </p>
 
             {/* Regional Station Selector Pills inside AI view */}
-            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+            <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--navy-primary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
                 📍 Veldu landshluta til að sjá staðbundna AI-leiðréttingu:
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1143,13 +1215,11 @@ export default function Home() {
                     className={`tab-pill ${selectedStationId === st.obsId ? 'active' : ''}`}
                     style={{ 
                       padding: '0.4rem 0.8rem', 
-                      fontSize: '0.8rem',
-                      background: selectedStationId === st.obsId ? 'var(--accent-purple)' : undefined,
-                      borderColor: selectedStationId === st.obsId ? 'var(--accent-purple)' : undefined
+                      fontSize: '0.8rem'
                     }}
                   >
                     <span>{st.name}</span>
-                    <span style={{ fontSize: '0.65rem', opacity: 0.8, background: 'rgba(0,0,0,0.25)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
+                    <span style={{ fontSize: '0.65rem', opacity: 0.85, background: selectedStationId === st.obsId ? 'rgba(255,255,255,0.2)' : 'rgba(15,70,120,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
                       {st.region}
                     </span>
                   </button>
@@ -1165,12 +1235,10 @@ export default function Home() {
                 style={{ 
                   padding: '0.55rem 1.15rem',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
-                  background: aiSubTab === 'forecast' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(56, 189, 248, 0.3))' : undefined,
-                  borderColor: aiSubTab === 'forecast' ? 'var(--accent-purple)' : undefined
+                  fontSize: '0.85rem'
                 }}
               >
-                <Sparkles size={14} color={aiSubTab === 'forecast' ? '#fff' : 'var(--accent-purple)'} />
+                <Sparkles size={14} color={aiSubTab === 'forecast' ? '#fff' : 'var(--navy-primary)'} />
                 <span>🔮 Snjallspá framundan (Næstu 4 dagar í {activeStation.name})</span>
               </button>
 
@@ -1180,12 +1248,10 @@ export default function Home() {
                 style={{ 
                   padding: '0.55rem 1.15rem',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
-                  background: aiSubTab === 'backtest' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(56, 189, 248, 0.3))' : undefined,
-                  borderColor: aiSubTab === 'backtest' ? '#10b981' : undefined
+                  fontSize: '0.85rem'
                 }}
               >
-                <CheckCircle2 size={14} color={aiSubTab === 'backtest' ? '#fff' : '#10b981'} />
+                <CheckCircle2 size={14} color={aiSubTab === 'backtest' ? '#fff' : '#059669'} />
                 <span>📜 Sannprófun aftur í tímann (365 daga Backtest: "Hefði hún staðist?")</span>
               </button>
             </div>
@@ -1197,11 +1263,11 @@ export default function Home() {
           {aiSubTab === 'forecast' && (
             <>
               {/* Regional Focus Highlights Banner */}
-              <div style={{ background: 'rgba(192, 132, 252, 0.08)', border: '1px solid rgba(192, 132, 252, 0.25)', borderRadius: '12px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <Zap size={20} color="var(--accent-purple)" />
+                  <Zap size={20} color="var(--navy-primary)" />
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                       Sérstök staðháttagreining fyrir {activeStation.fullName}:
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -1232,8 +1298,9 @@ export default function Home() {
                       className="glass-panel"
                       style={{ 
                         padding: '1.5rem', 
-                        background: 'var(--bg-surface-elevated)',
-                        border: '1px solid rgba(192, 132, 252, 0.25)',
+                        background: '#ffffff',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: 'var(--shadow-card)',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between'
@@ -1246,11 +1313,11 @@ export default function Home() {
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
                               {item.dateStr}
                             </div>
-                            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff' }}>
+                            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                               {item.dayName}
                             </h3>
                           </div>
-                          <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                          <span className="badge badge-emerald">
                             {item.confidence}
                           </span>
                         </div>
@@ -1259,7 +1326,7 @@ export default function Home() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1.25rem' }}>
                           
                           {/* Raw Model Column */}
-                          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
                               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                                 Hrá spá Veðurstofunnar
@@ -1267,7 +1334,7 @@ export default function Home() {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                               <span style={{ fontSize: '1.6rem' }}>{item.raw.icon}</span>
-                              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff' }}>
+                              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                                 {item.raw.temp > 0 ? `+${item.raw.temp}` : item.raw.temp}°C
                               </div>
                             </div>
@@ -1284,36 +1351,36 @@ export default function Home() {
 
                           {/* AI-Corrected Column */}
                           <div style={{ 
-                            background: 'linear-gradient(145deg, rgba(192, 132, 252, 0.08), rgba(56, 189, 248, 0.08))', 
+                            background: '#f0f9ff', 
                             padding: '1rem', 
                             borderRadius: '10px', 
-                            border: '1px solid rgba(192, 132, 252, 0.35)',
+                            border: '1px solid #bae6fd',
                             position: 'relative'
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                              <Zap size={12} color="var(--accent-purple)" />
-                              <span style={{ fontSize: '0.72rem', color: 'var(--accent-purple)', textTransform: 'uppercase', fontWeight: 800 }}>
+                              <Zap size={12} color="var(--navy-primary)" />
+                              <span style={{ fontSize: '0.72rem', color: 'var(--navy-primary)', textTransform: 'uppercase', fontWeight: 800 }}>
                                 AI-Leiðrétt spá
                               </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                               <span style={{ fontSize: '1.6rem' }}>{item.ai.icon}</span>
-                              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-purple)' }}>
+                              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0284c7' }}>
                                 {item.ai.temp > 0 ? `+${item.ai.temp}` : item.ai.temp}°C
                               </div>
                               {isTempAdjusted && (
-                                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.35rem', background: item.diffs.tempDiff < 0 ? 'rgba(56, 189, 248, 0.2)' : 'rgba(244, 63, 94, 0.2)', color: item.diffs.tempDiff < 0 ? '#38bdf8' : '#f43f5e' }}>
+                                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.35rem', background: item.diffs.tempDiff < 0 ? '#e0f2fe' : '#fee2e2', color: item.diffs.tempDiff < 0 ? '#0284c7' : '#dc2626' }}>
                                   {item.diffs.tempDiff > 0 ? `+${item.diffs.tempDiff}` : item.diffs.tempDiff}°C
                                 </span>
                               )}
                             </div>
-                            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', marginBottom: '0.4rem' }}>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
                               {item.ai.weather}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-main)' }}>
-                              Vindur: <strong>{item.ai.wind} m/s</strong> (hviður <strong style={{ color: isGustAdjusted ? '#f59e0b' : '#fff' }}>{item.ai.gust} m/s</strong>)
+                              Vindur: <strong>{item.ai.wind} m/s</strong> (hviður <strong style={{ color: isGustAdjusted ? '#d97706' : 'var(--text-main)' }}>{item.ai.gust} m/s</strong>)
                             </div>
-                            <div style={{ marginTop: '0.6rem', fontSize: '0.7rem', color: 'var(--accent-emerald)', fontWeight: 700 }}>
+                            <div style={{ marginTop: '0.6rem', fontSize: '0.7rem', color: '#059669', fontWeight: 700 }}>
                               ✓ Staðbundin eftirvinnsla
                             </div>
                           </div>
@@ -1321,14 +1388,14 @@ export default function Home() {
                         </div>
 
                         {/* Applied Corrections List */}
-                        <div style={{ background: 'rgba(0,0,0,0.25)', padding: '0.85rem', borderRadius: '8px', marginBottom: '0.85rem' }}>
-                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
+                        <div style={{ background: '#f8fafc', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '0.85rem' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--navy-primary)', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
                             Staðbundnar leiðréttingar á líkanið:
                           </div>
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                             {item.corrections.map((corr: string, cIdx: number) => (
                               <li key={cIdx} style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginBottom: '0.3rem', display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
-                                <Check size={13} color="var(--accent-purple)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                <Check size={13} color="#059669" style={{ flexShrink: 0, marginTop: '2px' }} />
                                 <span>{corr}</span>
                               </li>
                             ))}
@@ -1338,14 +1405,15 @@ export default function Home() {
 
                       {/* AI Advantage Callout */}
                       <div style={{ 
-                        background: 'rgba(192, 132, 252, 0.12)', 
-                        borderLeft: '3px solid var(--accent-purple)', 
+                        background: '#f0f9ff', 
+                        borderLeft: '3px solid var(--navy-primary)', 
+                        border: '1px solid #bae6fd',
                         padding: '0.75rem 0.85rem', 
                         borderRadius: '0 8px 8px 0',
                         fontSize: '0.8rem',
-                        color: '#fff'
+                        color: 'var(--text-main)'
                       }}>
-                        <strong style={{ color: 'var(--accent-purple)' }}>💡 Staðbundið forskot:</strong> {item.aiAdvantage}
+                        <strong style={{ color: 'var(--navy-primary)' }}>💡 Staðbundið forskot:</strong> {item.aiAdvantage}
                       </div>
 
                     </div>
@@ -1362,7 +1430,7 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
               
               {/* Backtest Executive Summary */}
-              <div className="glass-panel" style={{ padding: '1.75rem', background: 'rgba(15, 23, 42, 0.7)' }}>
+              <div className="glass-panel" style={{ padding: '1.75rem', background: '#ffffff', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-card)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   <span className="badge badge-emerald">
                     ✓ SÖGULEG SANNPRÓFUN (365 DAGAR)
@@ -1371,39 +1439,39 @@ export default function Home() {
                     Öllum 365 dögum síðastliðins árs snúið aftur og keyrt í gegnum AI-eftirvinnsluna
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem' }}>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.4rem' }}>
                   Hefði þessi AI-spá staðist prófið ef hún hefði verið keyrð síðastliðið ár?
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-                  Til að sannreyna að gervigreindin sé ekki bara að giska, tókum við 3ja daga spár Veðurstofunnar (D-3) fyrir alla 365 daga ársins, keyrðum þær í gegnum líkanaleiðréttinguna, og bFunctionu saman við <strong>raunverulega mælda veðrið á veðurstöðvunum</strong>.
+                  Til að sannreyna að gervigreindin sé ekki bara að giska, tókum við 3ja daga spár Veðurstofunnar (D-3) fyrir alla 365 daga ársins, keyrðum þær í gegnum líkanaleiðréttinguna, og báru saman við <strong>raunverulega mælda veðrið á veðurstöðvunum</strong>.
                 </p>
 
                 {/* 4 Grand Scorecards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1rem' }}>
                   
-                  <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '1.1rem' }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1.1rem' }}>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                       Meðalnákvæmni á D-3
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.3rem 0' }}>
-                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#10b981' }}>
+                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#059669' }}>
                         {aiBacktest.summary.aiModelAccuracy}%
                       </span>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
                         vs {aiBacktest.summary.rawModelAccuracy}% hrátt
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>
+                    <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>
                       +{aiBacktest.summary.improvementPctPoints}% Bæting á spágæðum
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '1.1rem' }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1.1rem' }}>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                       Hversu oft var AI nær?
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.3rem 0' }}>
-                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#38bdf8' }}>
+                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--navy-primary)' }}>
                         82.7%
                       </span>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
@@ -1415,36 +1483,36 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '1.1rem' }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1.1rem' }}>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                       0°C Núllpunktsgildrur
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.3rem 0' }}>
-                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#c084fc' }}>
+                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#7e22ce' }}>
                         {aiBacktest.summary.zeroDegreeSuccessRate}%
                       </span>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
                         Bjargað
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--accent-purple)' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#7e22ce', fontWeight: 700 }}>
                       Spáði slyddu/hálku í stað rigningar
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '1.1rem' }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1.1rem' }}>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                       Vanmetnar Fallhviður
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', margin: '0.3rem 0' }}>
-                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#f59e0b' }}>
+                      <span className="mono" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#d97706' }}>
                         {aiBacktest.summary.gustUnderestimateSavedRate}%
                       </span>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
                         Árangur
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#f59e0b' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700 }}>
                       Sá fyrir fárviðrishviður við fjöll
                     </div>
                   </div>
@@ -1454,7 +1522,7 @@ export default function Home() {
 
               {/* 4 Deep-Dive Historical Case Studies */}
               <div style={{ marginBottom: '0.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '0.2rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.2rem' }}>
                   🔍 Raunveruleg dæmi úr sögunni: Hvernig stóðst AI spáin prófið?
                 </h3>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
@@ -1469,8 +1537,9 @@ export default function Home() {
                     className="glass-panel"
                     style={{ 
                       padding: '1.5rem', 
-                      background: 'var(--bg-surface-elevated)',
-                      border: '1px solid rgba(16, 185, 129, 0.25)',
+                      background: '#ffffff',
+                      border: '1px solid var(--border-color)',
+                      boxShadow: 'var(--shadow-card)',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between'
@@ -1483,7 +1552,7 @@ export default function Home() {
                           <div style={{ fontSize: '0.72rem', color: 'var(--accent-blue)', fontWeight: 700, textTransform: 'uppercase' }}>
                             {cs.dateStr} • {cs.region}
                           </div>
-                          <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                             {cs.name}
                           </h4>
                         </div>
@@ -1496,58 +1565,58 @@ export default function Home() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }}>
                         
                         {/* 1. Raw Forecast */}
-                        <div style={{ background: 'rgba(244, 63, 94, 0.06)', border: '1px solid rgba(244, 63, 94, 0.25)', borderRadius: '8px', padding: '0.75rem' }}>
-                          <div style={{ fontSize: '0.68rem', color: '#f43f5e', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '0.75rem' }}>
+                          <div style={{ fontSize: '0.68rem', color: '#dc2626', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                             Hrá spá D-3
                           </div>
-                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
                             {cs.rawForecast.temp > 0 ? `+${cs.rawForecast.temp}` : cs.rawForecast.temp}°C
                           </div>
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
                             {cs.rawForecast.wind} m/s (hviða {cs.rawForecast.gust})
                           </div>
-                          <div style={{ fontSize: '0.72rem', color: '#fff', fontWeight: 600 }}>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-main)', fontWeight: 600 }}>
                             {cs.rawForecast.weather}
                           </div>
-                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#f43f5e', fontWeight: 700 }}>
+                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#dc2626', fontWeight: 700 }}>
                             Einkunn: {cs.rawForecast.score}% (Féll)
                           </div>
                         </div>
 
                         {/* 2. AI Forecast */}
-                        <div style={{ background: 'rgba(192, 132, 252, 0.08)', border: '1px solid rgba(192, 132, 252, 0.35)', borderRadius: '8px', padding: '0.75rem' }}>
-                          <div style={{ fontSize: '0.68rem', color: 'var(--accent-purple)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '0.75rem' }}>
+                          <div style={{ fontSize: '0.68rem', color: '#0284c7', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                             AI-Leiðrétt D-3
                           </div>
-                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent-purple)' }}>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0284c7' }}>
                             {cs.aiForecast.temp > 0 ? `+${cs.aiForecast.temp}` : cs.aiForecast.temp}°C
                           </div>
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
                             {cs.aiForecast.wind} m/s (hviða {cs.aiForecast.gust})
                           </div>
-                          <div style={{ fontSize: '0.72rem', color: '#fff', fontWeight: 600 }}>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-main)', fontWeight: 600 }}>
                             {cs.aiForecast.weather}
                           </div>
-                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#10b981', fontWeight: 700 }}>
+                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#059669', fontWeight: 700 }}>
                             Einkunn: {cs.aiForecast.score}% (Glæsilegt)
                           </div>
                         </div>
 
                         {/* 3. Actual Observed Weather */}
-                        <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '0.75rem' }}>
-                          <div style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem' }}>
+                          <div style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                             Raunverulegt mælt
                           </div>
-                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#10b981' }}>
+                          <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#15803d' }}>
                             {cs.actualWeather.temp > 0 ? `+${cs.actualWeather.temp}` : cs.actualWeather.temp}°C
                           </div>
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
                             {cs.actualWeather.wind} m/s (hviða {cs.actualWeather.gust})
                           </div>
-                          <div style={{ fontSize: '0.72rem', color: '#fff', fontWeight: 600 }}>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-main)', fontWeight: 600 }}>
                             {cs.actualWeather.weather}
                           </div>
-                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#10b981', fontWeight: 700 }}>
+                          <div style={{ marginTop: '0.5rem', fontSize: '0.68rem', color: '#15803d', fontWeight: 700 }}>
                             Mælt á stöð
                           </div>
                         </div>
@@ -1557,15 +1626,16 @@ export default function Home() {
 
                     {/* Verdict Banner */}
                     <div style={{ 
-                      background: 'rgba(16, 185, 129, 0.1)', 
-                      borderLeft: '3px solid #10b981', 
+                      background: '#ecfdf5', 
+                      borderLeft: '3px solid #059669', 
+                      border: '1px solid #a7f3d0',
                       padding: '0.75rem 0.85rem', 
                       borderRadius: '0 8px 8px 0',
                       fontSize: '0.78rem',
-                      color: '#fff',
+                      color: 'var(--text-main)',
                       lineHeight: 1.45
                     }}>
-                      <strong style={{ color: '#10b981' }}>DÓMUR:</strong> {cs.verdict}
+                      <strong style={{ color: '#059669' }}>DÓMUR:</strong> {cs.verdict}
                     </div>
 
                   </div>
@@ -1582,7 +1652,7 @@ export default function Home() {
       {/* VIEW: OUTLOOK */}
       {/* ========================================================================= */}
       {viewMode === 'outlook' && (
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
+        <div className="glass-panel" style={{ padding: '1.75rem', background: '#ffffff', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-card)' }}>
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
               <span className="badge badge-blue">
@@ -1592,7 +1662,7 @@ export default function Home() {
                 {activeStation.name} – Næstu 4 dagar
               </span>
             </div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
               Hversu mikið má treysta veðurspánni næstu daga?
             </h2>
           </div>
@@ -1608,7 +1678,7 @@ export default function Home() {
                   className="lead-col-card" 
                   style={{ 
                     borderTop: `4px solid ${scoreColor}`,
-                    background: 'var(--bg-surface-elevated)'
+                    background: '#ffffff'
                   }}
                 >
                   <div>
@@ -1621,18 +1691,18 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff', marginBottom: '0.2rem' }}>
+                    <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.2rem' }}>
                       {fc.dayName}
                     </h4>
 
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-blue)', marginBottom: '0.3rem' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.3rem' }}>
                       {fc.temp > 0 ? `+${fc.temp}` : fc.temp}°C • {fc.wind} m/s
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
                       {fc.weatherDesc}
                     </div>
 
-                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '8px', borderLeft: `3px solid ${scoreColor}`, marginBottom: '0.75rem' }}>
+                    <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', borderLeft: `3px solid ${scoreColor}`, marginBottom: '0.75rem' }}>
                       <div style={{ fontSize: '0.75rem', fontWeight: 700, color: scoreColor, marginBottom: '0.15rem' }}>
                         {fc.confidence}
                       </div>
@@ -1655,9 +1725,64 @@ export default function Home() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer style={{ marginTop: '2.5rem', padding: '1.25rem', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.78rem', borderTop: '1px solid var(--border-color)' }}>
-        Veðurspá vs. Raunveruleiki • Samanburður byggður á rauntímamælingum og spám frá Veðurstofu Íslands (vedur.is) • Keyrt á Vercel & Next.js
+      {/* End Main Container */}
+      </main>
+
+      {/* Official Vedur.is Footer */}
+      <footer className="vedur-footer">
+        <div className="vedur-footer-content">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 80 80" fill="#ffffff" aria-label="Veðurstofa Íslands logo">
+                <path d="M48.8877 18.0154L31.0909 35.8016V0.240051L48.8877 18.0154ZM17.7754 31.3309L0 49.1277H35.5615L17.7754 31.3309ZM31.0909 62.4218L48.8877 80.2401V44.6893L31.0909 62.4218ZM62.1817 49.1277L80 31.3309H44.4492L62.1817 49.1277Z"></path>
+              </svg>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>Veðurstofa Íslands</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.6, maxWidth: '380px', marginBottom: '0.75rem' }}>
+              Bústaðavegi 7-9, 108 Reykjavík<br />
+              Sími: 522 6000 • Netfang: vedur@vedur.is<br />
+              Kennitala: 630908-0350
+            </p>
+            <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+              Veðurspá vs. Raunveruleiki – Sjálfvirkt sannprófunarkerfi og AI-leiðrétting á spám Veðurstofunnar og evrópska reiknilíkansins (ECMWF/Harmonie).
+            </p>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Veður & Spár</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('verification'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>Sannprófun dagsins</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('aiForecast'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>AI-Leiðrétt Snjallspá</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('history'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>365 daga ársgreining</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('outlook'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>Spástöðugleikamat</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Náttúruvár</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
+              <li><a href="https://en.vedur.is/earthquakes-and-volcanism/earthquakes/" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Jarðskjálftar</a></li>
+              <li><a href="https://www.vedur.is/skjalf/ofanflod/" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Snjóflóðakort</a></li>
+              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Vatnafar & ár</a></li>
+              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Eldstöðvar</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: '#93c5fd' }}>Upplýsingar</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
+              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Um Veðurstofuna</a></li>
+              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Hafa samband</a></li>
+              <li><a href="https://www.vedur.is" target="_blank" rel="noreferrer" style={{ color: '#e2e8f0', textDecoration: 'none' }}>Aðgengi & persónuvernd</a></li>
+              <li><a href="https://github.com/robertbeck-stack/vedurspa" target="_blank" rel="noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>Kóði á GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="vedur-footer-bottom">
+          <div>© Veðurstofa Íslands • Höfundarréttur og skilmálar • Allur réttur áskilinn</div>
+          <div>Kerfi keyrt á Vercel & Next.js • Rauntímagögn frá Veðurstofu Íslands</div>
+        </div>
       </footer>
 
     </div>
