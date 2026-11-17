@@ -97,23 +97,31 @@ export const REGIONS_DATA = [
 
 export function resolveStation(param?: string | null): StationMeta {
   if (!param) return STATIONS[1]; // default Reykjavík
-  const clean = param.toLowerCase().trim();
+  const clean = decodeURIComponent(param).toLowerCase().trim();
 
-  // If numeric ID or matches 0
-  if (/^\d+$/.test(clean)) {
-    const num = parseInt(clean, 10);
-    const found = STATIONS.find(s => s.obsId === num || s.fcId === num);
-    if (found) return found;
+  // 1. Extract number from URL path or query string, e.g. /spar/3471/ or /3471 or ?station=3471
+  const idMatch = clean.match(/\/(\d{1,5})(\/|\?|#|$)/) || clean.match(/[?&](?:station|id|station_id)=(\d{1,5})/i) || clean.match(/^(\d{1,5})$/);
+  if (idMatch) {
+    const num = parseInt(idMatch[1], 10);
+    const foundById = STATIONS.find(s => s.obsId === num || s.fcId === num);
+    if (foundById) return foundById;
   }
 
-  // Exact or partial match
+  // 2. Check if any station name or slug is included in clean
+  for (const s of STATIONS) {
+    if (s.obsId === 0) continue;
+    if (
+      clean.includes(s.slug) ||
+      clean.includes(s.vedurSlug) ||
+      clean.includes(s.name.toLowerCase())
+    ) {
+      return s;
+    }
+  }
+
+  // 3. Fallback search by full name
   const found = STATIONS.find(s => 
-    s.slug === clean || 
-    s.vedurSlug === clean || 
-    s.name.toLowerCase() === clean || 
-    s.fullName.toLowerCase().includes(clean) ||
-    clean.includes(s.slug) ||
-    clean.includes(s.vedurSlug)
+    s.fullName.toLowerCase().includes(clean)
   );
 
   return found || STATIONS[1];

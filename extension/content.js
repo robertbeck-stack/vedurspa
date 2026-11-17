@@ -3,61 +3,113 @@
 // Keyrir sjálfkrafa á vefsíðu vedur.is og sprautar AI-veðurgreiningu inn
 // =========================================================================
 
-(async function initVedurvaktinExtension() {
-  // 1. Koma í veg fyrir að kortið bætist við tvisvar
-  if (document.getElementById('vedurvaktin-ext-widget')) return;
+(function initVedurvaktin() {
+  let lastInjectedUrl = '';
+  let isFetching = false;
 
-  const currentUrl = window.location.href;
-  console.log('[Veðurvaktin AI] Athuga spágæði fyrir vefslóð:', currentUrl);
-
-  // 2. Finna hvaða heiti eða staðsetning er á síðunni
-  let detectedName = '';
-  const heading = document.querySelector('h1, h2, .station-title, .breadcrumb');
-  if (heading) {
-    detectedName = heading.innerText.trim();
-  }
-
-  try {
-    // 3. Sækja AI-leiðréttingu og spágæði frá Vercel bakenda
-    const apiUrl = `https://vedurspa-eta.vercel.app/api/extension?url=${encodeURIComponent(currentUrl)}&name=${encodeURIComponent(detectedName)}`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) {
-      console.warn('[Veðurvaktin AI] Ekki náðist samband við bakenda:', res.status);
+  async function tryInjectCard() {
+    const currentUrl = window.location.href;
+    
+    // Athuga hvort við höfum þegar sprautað inn fyrir þessa slóð
+    const existingWidget = document.getElementById('vedurvaktin-ext-widget');
+    if (existingWidget && lastInjectedUrl === currentUrl) {
       return;
     }
 
-    const data = await res.json();
-    if (!data || !data.extensionHtml) {
-      console.warn('[Veðurvaktin AI] Engin gögn bárust frá API.');
-      return;
-    }
+    if (isFetching) return;
 
-    // 4. Finna bestu staðsetningu á síðunni til að sprauta spjaldinu
-    // Reynum töflur, aðalefni eða forsíðuyfirlit á vedur.is
+    // 1. Finna hvar veðurtaflan eða aðalefnið er í DOM
+    // Á vedur.is (Next.js) er veðurtaflan <table> eða inni í #readContentWeatherDetails
     const targetElement = 
+      document.querySelector('table') ||
+      document.querySelector('#readContentWeatherDetails') ||
       document.querySelector('.table-responsive') || 
       document.querySelector('#station-table') ||
       document.querySelector('#forecast-table') ||
-      document.querySelector('.forecast-day-wrapper') ||
-      document.querySelector('#page') ||
-      document.querySelector('main') ||
-      document.querySelector('.content') ||
-      document.body.firstChild;
+      document.querySelector('.forecast-day-wrapper');
 
-    if (targetElement) {
+    if (!targetElement) {
+      // Taflan er enn að hlaðast í Next.js SPA, reynum aftur þegar hún birtist
+      return;
+    }
+
+    // 2. Finna staðarheiti eða stöðvarnúmer úr URL eða titli síðu
+    const idMatch = currentUrl.match(/\/(\d{1,5})(\/|\?|#|$)/);
+    const stationId = idMatch ? idMatch[1] : '';
+    const pageTitle = document.title || '';
+    const heading = document.querySelector('h1, h2, h3, h4');
+    const headingText = heading ? heading.innerText.trim() : '';
+
+    isFetching = true;
+    try {
+      console.log('[Veðurvaktin AI] Sæki AI-spá fyrir:', currentUrl, 'Stöð ID:', stationId || 'sjálfvirkt');
+      
+      const apiUrl = `https://vedurspa-eta.vercel.app/api/extension?url=${encodeURIComponent(currentUrl)}&station=${encodeURIComponent(stationId)}&name=${encodeURIComponent(pageTitle || headingText)}`;
+      const res = await fetch(apiUrl);
+      if (!res.ok) {
+        isFetching = false;
+        return;
+      }
+
+      const data = await res.json();
+      if (!data || !data.extensionHtml) {
+        isFetching = false;
+        return;
+      }
+
+      // Fjarlægja gamalt spjald ef það er til
+      const oldContainer = document.getElementById('vedurvaktin-ext-container');
+      if (oldContainer) oldContainer.remove();
+
+      // Búa til nýjan kassa utan um spjaldið
       const container = document.createElement('div');
       container.id = 'vedurvaktin-ext-container';
-      container.style.maxWidth = '1000px';
+      container.style.maxWidth = '1120px';
       container.style.margin = '16px auto';
-      container.style.padding = '0 10px';
+      container.style.padding = '0 12px';
+      container.style.boxSizing = 'border-box';
       container.innerHTML = data.extensionHtml;
 
-      targetElement.parentNode.insertBefore(container, targetElement);
-      console.log(`[Veðurvaktin AI] AI-veðurkorti sprautað inn fyrir ${data.station?.name || 'veðurstöð'}!`);
-    } else {
-      console.log('[Veðurvaktin AI] Fann ekki viðeigandi DOM stak til að sprauta inn í.');
+      // Finna réttan stað til að sprauta: fyrir ofan töfluna
+      const insertTarget = targetElement.closest('section') || 
+                           targetElement.closest('[class*="_1br7ayeb"]') || 
+                           targetElement.closest('.table-responsive') || 
+                           targetElement;
+
+      if (insertTarget && insertTarget.parentNode) {
+        insertTarget.parentNode.insertBefore(container, insertTarget);
+        lastInjectedUrl = currentUrl;
+        console.log(`[Veðurvaktin AI] AI-korti sprautað inn fyrir ${data.station?.name || 'veðurstöð'}!`);
+      }
+    } catch (err) {
+      console.error('[Veðurvaktin AI] Villa við að sprauta gögnum:', err);
+    } finally {
+      isFetching = false;
     }
-  } catch (err) {
-    console.error('[Veðurvaktin AI] Villa við vinnslu:', err);
   }
+
+  // Reyna strax
+  tryInjectCard();
+
+  // Fylgjast með DOM breytingum (vegna þess að vedur.is notar Next.js sem hleður töflum ósamstillt)
+  const observer = new MutationObserver(() => {
+    tryInjectCard();
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+
+  // Fylgjast með slóðabreytingum ef notandi smellir milli stöðva án endurhleðslu
+  let currentHref = window.location.href;
+  setInterval(() => {
+    if (window.location.href !== currentHref) {
+      currentHref = window.location.href;
+      tryInjectCard();
+    }
+  }, 400);
 })();
