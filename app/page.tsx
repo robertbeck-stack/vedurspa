@@ -284,50 +284,110 @@ export default function Home() {
     );
   };
 
-  // FULL YEAR (52 WEEKS) GITHUB-STYLE MATRIX
+  // FULL YEAR (52-53 WEEKS) GITHUB-STYLE MATRIX
   const renderYearMatrix = () => {
     if (!historicalData || historicalData.length === 0) return null;
 
-    // Group days by weeks (53 columns x 7 days)
-    const reversed = [...historicalData].reverse(); // from oldest to newest
-    const weeks: any[][] = [];
-    let currentWeek: any[] = [];
+    // Days from oldest (2025-11-18) to newest (2026-11-17)
+    const sortedDays = [...historicalData].reverse();
 
-    reversed.forEach((d) => {
-      currentWeek.push(d);
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
+    // Map days into 53 calendar weeks (Mon-Sun)
+    // In JS: getDay() -> 0 is Sun, 1 is Mon ... 6 is Sat
+    // Convert to Monday=0, Tuesday=1 ... Sunday=6
+    const getWeekDayIdx = (dateStr: string) => {
+      const day = new Date(dateStr + 'T12:00:00Z').getDay();
+      return day === 0 ? 6 : day - 1; // 0=Mon, 6=Sun
+    };
+
+    const weeks: (any | null)[][] = [];
+    let curWeek: (any | null)[] = [null, null, null, null, null, null, null];
+
+    sortedDays.forEach((d, idx) => {
+      const dayIdx = getWeekDayIdx(d.dateStr);
+      curWeek[dayIdx] = d;
+
+      // When Sunday is reached or end of data, push week
+      if (dayIdx === 6 || idx === sortedDays.length - 1) {
+        weeks.push(curWeek);
+        curWeek = [null, null, null, null, null, null, null];
       }
     });
-    if (currentWeek.length > 0) weeks.push(currentWeek);
+
+    // Month spans across the 53 week columns
+    const monthSpans = [
+      { name: "Nóv '25", start: 2, span: 2 },
+      { name: "Des", start: 4, span: 4 },
+      { name: "Jan '26", start: 8, span: 4 },
+      { name: "Feb", start: 12, span: 4 },
+      { name: "Mar", start: 16, span: 5 },
+      { name: "Apr", start: 21, span: 4 },
+      { name: "Maí", start: 25, span: 5 },
+      { name: "Jún", start: 30, span: 4 },
+      { name: "Júl", start: 34, span: 5 },
+      { name: "Ágú", start: 39, span: 4 },
+      { name: "Sep", start: 43, span: 4 },
+      { name: "Okt", start: 47, span: 5 },
+      { name: "Nóv '26", start: 52, span: 3 }
+    ];
+
+    const weekDaysLabels = ['Mán', 'Þri', 'Mið', 'Fim', 'Fös', 'Lau', 'Sun'];
 
     return (
-      <div style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
-        <div style={{ minWidth: '880px' }}>
+      <div style={{ width: '100%', overflowX: 'auto', background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+        <div style={{ minWidth: '850px' }}>
           
-          {/* Month labels along the top */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', marginBottom: '4px', fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 700 }}>
-            <span>Nóv '25</span>
-            <span>Des</span>
-            <span>Jan '26</span>
-            <span>Feb</span>
-            <span>Mar</span>
-            <span>Apr</span>
-            <span>Maí</span>
-            <span>Jún (Sumar)</span>
-            <span>Júl</span>
-            <span>Ágú</span>
-            <span>Sep</span>
-            <span>Okt</span>
-            <span>Nóv '26</span>
+          {/* Month headers grid (Columns: 32px weekday labels + 53 week columns) */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '32px repeat(53, 1fr)', 
+            gap: '3px',
+            marginBottom: '6px',
+            fontSize: '0.72rem',
+            color: 'var(--text-dim)',
+            fontWeight: 700
+          }}>
+            <div /> {/* empty space for weekday labels column */}
+            {monthSpans.map((m) => (
+              <div 
+                key={m.name} 
+                style={{ 
+                  gridColumn: `${m.start} / span ${m.span}`,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {m.name}
+              </div>
+            ))}
           </div>
 
-          {/* The Matrix */}
-          <div style={{ display: 'flex', gap: '3px', background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '8px' }}>
+          {/* Weekday labels + 53 week columns grid */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '32px repeat(53, 1fr)', 
+            gap: '3px'
+          }}>
+            
+            {/* Left column: Weekday labels (Mon to Sun) */}
+            <div style={{ display: 'grid', gridTemplateRows: 'repeat(7, 16px)', gap: '3px', fontSize: '0.62rem', color: 'var(--text-dim)', fontWeight: 700, alignItems: 'center' }}>
+              <div>Mán</div>
+              <div></div>
+              <div>Mið</div>
+              <div></div>
+              <div>Fös</div>
+              <div></div>
+              <div>Sun</div>
+            </div>
+
+            {/* 53 Columns of Weeks */}
             {weeks.map((week, wIdx) => (
-              <div key={wIdx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                {week.map((day) => {
+              <div key={wIdx} style={{ display: 'grid', gridTemplateRows: 'repeat(7, 16px)', gap: '3px' }}>
+                {week.map((day, dIdx) => {
+                  if (!day) {
+                    return <div key={dIdx} style={{ width: '100%', height: '16px' }} />;
+                  }
+
                   const scoreColor = getScoreColor(day.accuracy);
                   const isSelected = selectedHistoryDay?.dateStr === day.dateStr;
 
@@ -335,22 +395,29 @@ export default function Home() {
                     <div
                       key={day.dateStr}
                       onClick={() => setSelectedHistoryDay(day)}
-                      title={`${day.dateStr} (${day.dayOfWeek}): ${day.accuracy}% - ${day.regime}`}
+                      title={`${day.dateStr} (${day.dayOfWeek}): ${day.accuracy}% – ${day.regime}`}
                       style={{
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '2px',
+                        width: '100%',
+                        height: '16px',
+                        borderRadius: '3px',
                         backgroundColor: scoreColor,
-                        opacity: isSelected ? 1 : day.accuracy >= 90 ? 0.95 : day.accuracy >= 80 ? 0.75 : day.accuracy >= 65 ? 0.8 : 0.95,
-                        outline: isSelected ? '2px solid #fff' : 'none',
+                        outline: isSelected ? '2px solid #ffffff' : 'none',
+                        boxShadow: isSelected ? '0 0 8px #38bdf8' : 'none',
                         cursor: 'pointer',
-                        transition: 'transform 0.1s'
+                        transition: 'transform 0.1s ease'
                       }}
                     />
                   );
                 })}
               </div>
             ))}
+
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem', fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+            <span>← Fyrir 365 dögum (18. nóv 2025)</span>
+            <span>Allir 365 dagar í 53 vikum í fullri breidd • Smelltu á hvaða reit sem er</span>
+            <span>Í dag (17. nóv 2026) →</span>
           </div>
 
         </div>
