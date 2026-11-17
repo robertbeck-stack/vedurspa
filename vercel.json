@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "regions": ["arn1", "lhr1", "cdg1", "iad1"]
+}
