@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <title>Veðurvaktin AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 330px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f6f9;
+      color: #1e293b;
+      padding: 14px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #0f4678;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f4678;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge {
+      font-size: 10px;
+      background: #0f4678;
+      color: #ffffff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-weight: 700;
+      color: #0f4678;
+      font-size: 12px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: #0f4678;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      transition: background 0.15s;
+    }
+    .btn:hover {
+      background: #0a2e50;
+    }
+    .loading {
+      text-align: center;
+      padding: 16px;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <span>☁️</span> Veðurvaktin AI
+    </div>
+    <span class="badge">vedur.is viðbót</span>
+  </div>
+
+  <select id="station-select">
+    <option value="reykjavik">Reykjavík (Höfuðborgarsvæðið)</option>
+    <option value="akureyri">Akureyri (Norðurland)</option>
+    <option value="isafjordur">Ísafjörður (Vestfirðir)</option>
+    <option value="egilsstadir">Egilsstaðir (Austurland)</option>
+    <option value="kirkjubaejarklaustur">Kirkjubæjarklaustur (Suðurland)</option>
+    <option value="stykkisholmur">Stykkishólmur (Vesturland)</option>
+    <option value="vestmannaeyjar">Vestmannaeyjar</option>
+    <option value="hofn">Höfn í Hornafirði</option>
+  </select>
+
+  <div id="content-area">
+    <div class="loading">Sæki AI-veðurgreiningu...</div>
+  </div>
+
+  <a href="https://vedurspa-eta.vercel.app" target="_blank" class="btn">
+    Opna heildstæða greiningu á vefnum ↗
+  </a>
+
+  <script src="popup.js"></script>
+</body>
+</html>

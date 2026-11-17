@@ -1,0 +1,28 @@
+========================================================================
+VEÐURVAKTIN AI – CHROME VIÐBÓT FYRIR VEDUR.IS
+========================================================================
+
+Þessi viðbót bætir sjálfkrafa við rauntíma spágæðum, nákvæmniseinkunnum og 
+AI-leiðréttri veðurspá beint ofan við veðurspátöfluna á vefsíðu vedur.is.
+
+HVERNIG Á AÐ SETJA UPP Í GOOGLE CHROME (Tekur innan við 1 mínútu):
+------------------------------------------------------------------------
+1. Afþjappaðu (unzip) þessari .zip skrá í möppu á tölvunni þinni.
+2. Opnaðu Google Chrome og sláðu inn í veffangastikuna:
+   chrome://extensions
+3. Kveiktu á rofanum „Developer mode“ (Hönnuðarhamur) efst í hægra horninu.
+4. Smelltu á hnappinn „Load unpacked“ efst til vinstri.
+5. Veldu möppuna sem inniheldur manifest.json og aðrar skrár viðbótarinnar.
+6. Lokið! Viðbótin er nú virk.
+
+PRÓFUN:
+------------------------------------------------------------------------
+Farðu inn á hvaða spásíðu sem er á vedur.is:
+t.d. https://www.vedur.is/vedur/spar/stadis/reykjavik/
+eða https://www.vedur.is/vedur/spar/stadis/akureyri/
+
+AI-veðurkortið birtist sjálfkrafa með nákvæmniseinkunn og staðbundnum
+eðlisfræðilegum líkanaleiðréttingum!
+
+Að auki geturðu smellt á tákn viðbótarinnar í tækjastikunni í Chrome til að
+sjá hraðyfirlit yfir allar helstu veðurstöðvar landsins.

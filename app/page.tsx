@@ -28,7 +28,8 @@ import {
   Code2,
   Copy,
   Terminal,
-  ExternalLink
+  ExternalLink,
+  Download
 } from 'lucide-react';
 
 const manifestCode = `{
@@ -695,7 +696,27 @@ export default function Home() {
               </h1>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <a 
+                href="/vedurvaktin-extension.zip" 
+                download="vedurvaktin-extension.zip"
+                style={{
+                  background: 'var(--navy-primary)',
+                  color: '#ffffff',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  padding: '0.55rem 0.95rem',
+                  borderRadius: '8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 4px rgba(15,70,120,0.15)'
+                }}
+              >
+                <Download size={14} /> Hlaða niður viðbót (.zip)
+              </a>
+
               <button 
                 onClick={() => fetchData(selectedStationId)} 
                 disabled={loading}
@@ -1841,6 +1862,55 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Download CTA Card */}
+          <div className="vedur-card" style={{ padding: '1.75rem', background: 'linear-gradient(135deg, #0f4678 0%, #1e3a8a 100%)', color: '#ffffff', border: 'none', boxShadow: '0 4px 15px rgba(15,70,120,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                  <span style={{ background: '#22c55e', color: '#ffffff', fontSize: '0.72rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', textTransform: 'uppercase' }}>
+                    Tilbúin til niðurhals
+                  </span>
+                  <span style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                    Manifest V3 • 6.8 KB
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.3rem' }}>
+                  Sæktu Veðurvaktin AI viðbótina fyrir Chrome
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#cbd5e1', maxWidth: '650px', lineHeight: 1.5 }}>
+                  Inniheldur allar nauðsynlegar skrár (<code>manifest.json</code>, <code>content.js</code>, <code>popup.html</code>, táknmyndir og skref-fyrir-skref leiðbeiningar á íslensku). Tilbúið til að hlaða beint inn í Chrome.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '220px' }}>
+                <a
+                  href="/vedurvaktin-extension.zip"
+                  download="vedurvaktin-extension.zip"
+                  style={{
+                    background: '#22c55e',
+                    color: '#ffffff',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    padding: '0.85rem 1.4rem',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 10px rgba(34,197,94,0.3)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Download size={18} /> Hlaða niður viðbót (.zip)
+                </a>
+                <span style={{ fontSize: '0.72rem', color: '#93c5fd', textAlign: 'center' }}>
+                  Útgáfa 1.0.0 • Ekkert uppsetningarforrit þarf
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* 3 Main Endpoints Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(330px, 1fr))', gap: '1.25rem' }}>
             
@@ -2176,7 +2246,7 @@ export default function Home() {
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.8rem', lineHeight: 2, color: '#e2e8f0' }}>
               <li><span style={{ color: '#cbd5e1' }}>Sjálfstætt greiningarverkefni</span></li>
               <li><span style={{ color: '#cbd5e1' }}>Aðferðafræði & Sannprófun</span></li>
-              <li><span style={{ color: '#cbd5e1' }}>Opinn hugbúnaður</span></li>
+              <li><a href="/vedurvaktin-extension.zip" download="vedurvaktin-extension.zip" style={{ color: '#4ade80', textDecoration: 'none', fontWeight: 700 }}>📥 Hlaða niður viðbót (.zip)</a></li>
               <li><a href="https://github.com/robertbeck-stack/vedurspa" target="_blank" rel="noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>Kóði á GitHub ↗</a></li>
             </ul>
           </div>
