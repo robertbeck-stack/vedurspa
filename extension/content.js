@@ -75,6 +75,61 @@
       container.style.boxSizing = 'border-box';
       container.innerHTML = data.extensionHtml;
 
+      // Tengja smell-atburði (event listeners) beint fyrir dagaval / flipa
+      try {
+        const tabBtns = container.querySelectorAll('.vedurvaktin-day-tab');
+        const summaryCards = container.querySelectorAll('.vedurvaktin-summary-card');
+        const panels = container.querySelectorAll('.vedurvaktin-day-panel');
+
+        function selectDay(index) {
+          tabBtns.forEach((btn, i) => {
+            if (i === index) {
+              btn.style.background = '#0f4678';
+              btn.style.color = '#ffffff';
+              btn.style.borderColor = '#0f4678';
+              btn.style.fontWeight = '800';
+            } else {
+              btn.style.background = '#ffffff';
+              btn.style.color = '#475569';
+              btn.style.borderColor = '#cbd5e1';
+              btn.style.fontWeight = '600';
+            }
+          });
+
+          summaryCards.forEach((card, i) => {
+            if (i === index) {
+              card.style.borderColor = '#0f4678';
+              card.style.background = '#eff6ff';
+              card.style.boxShadow = '0 2px 6px rgba(15,70,120,0.15)';
+            } else {
+              card.style.borderColor = '#e2e8f0';
+              card.style.background = '#ffffff';
+              card.style.boxShadow = 'none';
+            }
+          });
+
+          panels.forEach((p, i) => {
+            p.style.display = i === index ? 'block' : 'none';
+          });
+        }
+
+        tabBtns.forEach((btn, idx) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectDay(idx);
+          });
+        });
+
+        summaryCards.forEach((card, idx) => {
+          card.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectDay(idx);
+          });
+        });
+      } catch (e) {
+        console.warn('[Veðurvaktin AI] Villa við að tengja flipa:', e);
+      }
+
       // Sprauta fyrir ofan markstakið
       let insertPoint = target;
       if (target.matches('table')) {
