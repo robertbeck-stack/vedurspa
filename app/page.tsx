@@ -24,8 +24,73 @@ import {
   Zap,
   ArrowRight,
   Check,
-  Search
+  Search,
+  Code2,
+  Copy,
+  Terminal,
+  ExternalLink
 } from 'lucide-react';
+
+const manifestCode = `{
+  "manifest_version": 3,
+  "name": "Veðurvaktin AI - Viðbót fyrir vedur.is",
+  "version": "1.0.0",
+  "description": "Bætir rauntíma spágæðum og AI-leiðréttri veðurspá beint inn á vefsíðu vedur.is",
+  "permissions": ["activeTab"],
+  "host_permissions": [
+    "https://www.vedur.is/*",
+    "https://vedurspa-eta.vercel.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.vedur.is/vedur/spar/*",
+        "https://www.vedur.is/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}`;
+
+const contentJsCode = `// Veðurvaktin Chrome Extension Content Script
+(async function() {
+  // 1. Ekki keyra oftar en einu sinni
+  if (document.getElementById('vedurvaktin-ext-widget')) return;
+
+  // 2. Finna hvaða vefslóð er verið að skoða á vedur.is
+  const currentUrl = window.location.href;
+  console.log('[Veðurvaktin AI] Athuga gögn fyrir:', currentUrl);
+
+  try {
+    // 3. Kalla á opna REST API endapunktinn á Vercel
+    const apiUrl = 'https://vedurspa-eta.vercel.app/api/extension?url=' + encodeURIComponent(currentUrl);
+    const res = await fetch(apiUrl);
+    if (!res.ok) return;
+
+    const data = await res.json();
+    if (!data || !data.extensionHtml) return;
+
+    // 4. Finna heppilegan stað á vedur.is til að sprauta spjaldinu
+    const targetElement = 
+      document.querySelector('.table-responsive') || 
+      document.querySelector('#station-table') ||
+      document.querySelector('#forecast-table') ||
+      document.querySelector('.forecast-day-wrapper') ||
+      document.querySelector('#page') ||
+      document.querySelector('main') ||
+      document.body;
+
+    if (targetElement) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = data.extensionHtml;
+      targetElement.parentNode.insertBefore(wrapper, targetElement);
+      console.log('[Veðurvaktin AI] AI-veðurkorti sprautað inn með góðum árangri!');
+    }
+  } catch (err) {
+    console.error('[Veðurvaktin AI] Villa:', err);
+  }
+})();`;
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
@@ -33,10 +98,33 @@ export default function Home() {
   const [selectedStationId, setSelectedStationId] = useState<number>(0);
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
   const [chartSubView, setChartSubView] = useState<'temp' | 'culprits' | 'allRegions'>('culprits');
-  const [viewMode, setViewMode] = useState<'history' | 'verification' | 'aiForecast' | 'outlook'>('aiForecast');
+  const [viewMode, setViewMode] = useState<'history' | 'verification' | 'aiForecast' | 'outlook' | 'apiDocs'>('aiForecast');
   const [aiSubTab, setAiSubTab] = useState<'forecast' | 'backtest'>('forecast');
   const [selectedHistoryDay, setSelectedHistoryDay] = useState<any>(null);
   const [selectedMonthFilter, setSelectedMonthFilter] = useState<number>(0); // 0 = Allt árið
+  const [apiTestStation, setApiTestStation] = useState<string>('reykjavik');
+  const [apiTestOutput, setApiTestOutput] = useState<any>(null);
+  const [apiTestLoading, setApiTestLoading] = useState<boolean>(false);
+  const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+
+  const runApiTest = async (st: string) => {
+    setApiTestLoading(true);
+    try {
+      const res = await fetch(`/api/extension?station=${st}`);
+      const j = await res.json();
+      setApiTestOutput(j);
+    } catch (err: any) {
+      setApiTestOutput({ error: err.message });
+    } finally {
+      setApiTestLoading(false);
+    }
+  };
+
+  const copyText = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedSnippet(id);
+    setTimeout(() => setCopiedSnippet(null), 2000);
+  };
 
   const fetchData = async (stationId: number) => {
     setLoading(true);
@@ -561,12 +649,16 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Nav links */}
           <nav className="vedur-nav">
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('verification'); }} className={`vedur-nav-item ${viewMode === 'verification' ? 'active' : ''}`}>Veður & Spár</a>
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('aiForecast'); }} className={`vedur-nav-item ${viewMode === 'aiForecast' ? 'active' : ''}`} style={{ color: 'var(--navy-primary)', fontWeight: 800 }}>🤖 AI-Snjallspá</a>
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('history'); }} className={`vedur-nav-item ${viewMode === 'history' ? 'active' : ''}`}>🗓️ Ársgreining</a>
             <a href="#" onClick={(e) => { e.preventDefault(); setViewMode('outlook'); }} className={`vedur-nav-item ${viewMode === 'outlook' ? 'active' : ''}`}>Áreiðanleiki</a>
+            <a href="#" onClick={(e) => { 
+              e.preventDefault(); 
+              setViewMode('apiDocs'); 
+              if (!apiTestOutput) runApiTest('reykjavik');
+            }} className={`vedur-nav-item ${viewMode === 'apiDocs' ? 'active' : ''}`} style={{ color: '#0369a1', fontWeight: 800 }}>🔌 API & Viðbót</a>
             <span className="badge-amber" style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
               Engin gul viðvörun
             </span>
@@ -682,6 +774,22 @@ export default function Home() {
             >
               <ShieldCheck size={15} color={viewMode === 'outlook' ? '#fff' : 'var(--navy-primary)'} />
               <span>Spástöðugleiki framundan (Næstu 4 dagar)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setViewMode('apiDocs');
+                if (!apiTestOutput) runApiTest('reykjavik');
+              }}
+              className={`tab-pill ${viewMode === 'apiDocs' ? 'active' : ''}`}
+              style={{ 
+                padding: '0.65rem 1.25rem', 
+                fontSize: '0.85rem',
+                borderColor: viewMode === 'apiDocs' ? 'var(--navy-primary)' : undefined
+              }}
+            >
+              <Code2 size={15} color={viewMode === 'apiDocs' ? '#fff' : 'var(--navy-primary)'} />
+              <span>🔌 API & Chrome Viðbót</span>
             </button>
           </div>
 
@@ -1696,6 +1804,321 @@ export default function Home() {
         </div>
       )}
 
+      {/* API & Chrome Extension Documentation & Starter Kit */}
+      {viewMode === 'apiDocs' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Hero Banner */}
+          <div className="vedur-card" style={{ padding: '1.75rem', borderLeft: '5px solid var(--navy-primary)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <span className="badge badge-blue" style={{ marginBottom: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Code2 size={13} /> OPIN REST API & CHROME VIÐBÓT (EXTENSION)
+                </span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--navy-primary)', margin: '0.3rem 0' }}>
+                  Bættu AI-Veðurspá og Rauntímagæðum beint inn á vedur.is
+                </h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', maxWidth: '780px', lineHeight: 1.6 }}>
+                  Öll gögn kerfisins eru aðgengileg í gegnum opin JSON REST API með fullum CORS-stuðningi (<code>Access-Control-Allow-Origin: *</code>). 
+                  Þú getur notað þessa endapunkta í Chrome viðbót til að sprauta AI-mati, nákvæmniseinkunn og staðbundnum eðlisfræðiskýringum beint inn á vefsíðuna <strong>vedur.is</strong>.
+                </p>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid var(--border-color)', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>CORS Staða</div>
+                <div style={{ color: '#059669', fontWeight: 800, fontSize: '1.1rem', marginTop: '0.2rem' }}>✓ Opinn aðgangur</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Engir takmarkandi lyklar</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Main Endpoints Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(330px, 1fr))', gap: '1.25rem' }}>
+            
+            {/* Endpoint 1: Extension Target */}
+            <div className="vedur-card" style={{ padding: '1.4rem', borderTop: '3px solid #2563eb' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                  GET
+                </span>
+                <span className="badge badge-emerald">Sniðið fyrir Chrome Extension</span>
+              </div>
+              <div className="mono" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--navy-primary)', wordBreak: 'break-all' }}>
+                /api/extension
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                Skilar bæði hreinum JSON gögnum (spágæði, hrá spá vs AI spá, hita- og vindfrávik) og tilbúnu HTML spjaldi (<code>extensionHtml</code>) sem hægt er að líma beint inn í DOM-ið á vedur.is.
+              </p>
+              <div style={{ marginTop: '0.85rem', background: '#f8fafc', padding: '0.6rem 0.85rem', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <strong>Færibreytur:</strong> <code>station=reykjavik</code>, <code>station_id=1</code>, eða <code>url=window.location.href</code>
+              </div>
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  onClick={() => runApiTest('reykjavik')}
+                  className="tab-pill active"
+                  style={{ fontSize: '0.78rem', padding: '0.45rem 0.85rem' }}
+                >
+                  Prófa í beinni
+                </button>
+                <a 
+                  href="/api/extension?station=reykjavik" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="tab-pill"
+                  style={{ fontSize: '0.78rem', padding: '0.45rem 0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
+                >
+                  Opna JSON <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+
+            {/* Endpoint 2: Stations List */}
+            <div className="vedur-card" style={{ padding: '1.4rem', borderTop: '3px solid #059669' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ background: '#ecfdf5', color: '#047857', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                  GET
+                </span>
+                <span className="badge badge-blue">Stöðvalisti & Auðkenni</span>
+              </div>
+              <div className="mono" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--navy-primary)', wordBreak: 'break-all' }}>
+                /api/stations
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                Skilar öllum 13 veðurstöðvum kerfisins ásamt heitum, landshlutum, auðkennum (<code>obsId</code> / <code>fcId</code>) og vefslóðarmynstrum á vedur.is.
+              </p>
+              <div style={{ marginTop: '0.85rem', background: '#f8fafc', padding: '0.6rem 0.85rem', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <strong>Færibreytur:</strong> <code>?q=akureyri</code> eða <code>?region=norðurland</code>
+              </div>
+              <div style={{ marginTop: '1rem' }}>
+                <a 
+                  href="/api/stations" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="tab-pill"
+                  style={{ fontSize: '0.78rem', padding: '0.45rem 0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
+                >
+                  Opna Stöðvalista <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+
+            {/* Endpoint 3: Full Weather Engine */}
+            <div className="vedur-card" style={{ padding: '1.4rem', borderTop: '3px solid #7c3aed' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <span style={{ background: '#f5f3ff', color: '#6d28d9', fontSize: '0.75rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                  GET
+                </span>
+                <span className="badge badge-amber">Heildstætt greiningarkerfi</span>
+              </div>
+              <div className="mono" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--navy-primary)', wordBreak: 'break-all' }}>
+                /api/vedur
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                Fullt gagnasafn: 5 daga rauntímasannprófun, 4 daga AI-framtíðarspá, spástöðugleikamat, og valfrjáls 365 daga söguleg ársgreining.
+              </p>
+              <div style={{ marginTop: '0.85rem', background: '#f8fafc', padding: '0.6rem 0.85rem', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                <strong>Færibreytur:</strong> <code>stationId=1</code>, <code>view=compact</code> (sleppir 365-daga gagnasafni til hraða)
+              </div>
+              <div style={{ marginTop: '1rem' }}>
+                <a 
+                  href="/api/vedur?stationId=1&view=compact" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="tab-pill"
+                  style={{ fontSize: '0.78rem', padding: '0.45rem 0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
+                >
+                  Opna /api/vedur <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Interactive Live Tester */}
+          <div className="vedur-card" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
+                  Gagnvirkur prófunarreitur (Live Endpoint Tester)
+                </h3>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Prófaðu að kalla á <code>/api/extension?station=...</code> og skoðaðu raunverulegt JSON svar:
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <select 
+                  value={apiTestStation} 
+                  onChange={(e) => {
+                    setApiTestStation(e.target.value);
+                    runApiTest(e.target.value);
+                  }}
+                  style={{
+                    padding: '0.5rem 0.85rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    background: '#ffffff',
+                    fontWeight: 700,
+                    color: 'var(--navy-primary)',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="reykjavik">Reykjavík (Höfuðborgarsvæðið)</option>
+                  <option value="akureyri">Akureyri (Norðurland)</option>
+                  <option value="isafjordur">Ísafjörður (Vestfirðir)</option>
+                  <option value="egilsstadir">Egilsstaðir (Austurland)</option>
+                  <option value="kirkjubaejarklaustur">Kirkjubæjarklaustur (Suðurland)</option>
+                  <option value="stykkisholmur">Stykkishólmur (Vesturland)</option>
+                  <option value="vestmannaeyjar">Vestmannaeyjar</option>
+                  <option value="hofn">Höfn í Hornafirði</option>
+                </select>
+
+                <button 
+                  onClick={() => runApiTest(apiTestStation)}
+                  className="tab-pill active"
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}
+                  disabled={apiTestLoading}
+                >
+                  {apiTestLoading ? 'Sæki gögn...' : 'Keyra fyrirspurn'}
+                </button>
+              </div>
+            </div>
+
+            {/* Response Box */}
+            <div style={{ position: 'relative' }}>
+              <button 
+                onClick={() => copyText(JSON.stringify(apiTestOutput, null, 2), 'api-json')}
+                style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#ffffff',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '0.72rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                {copiedSnippet === 'api-json' ? <Check size={12} color="#4ade80" /> : <Copy size={12} />}
+                {copiedSnippet === 'api-json' ? 'Afritað!' : 'Afrita JSON'}
+              </button>
+
+              <pre style={{
+                background: '#0f172a',
+                color: '#38bdf8',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                overflowX: 'auto',
+                maxHeight: '340px',
+                lineHeight: 1.5,
+                fontFamily: 'var(--font-mono)'
+              }}>
+                {apiTestOutput 
+                  ? JSON.stringify(apiTestOutput, null, 2) 
+                  : '// Smelltu á "Keyra fyrirspurn" til að prófa endapunktinn'}
+              </pre>
+            </div>
+          </div>
+
+          {/* Chrome Extension Starter Kit */}
+          <div className="vedur-card" style={{ padding: '1.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <span className="badge badge-emerald">TILBÚINN STARTER KIT</span>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-primary)' }}>
+                Chrome Extension sem bætir AI-upplýsingum við vedur.is
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              Hér er fullbúin Chrome Extension (Manifest V3) sem þú getur hlaðið inn í Chrome á 1 mínútu. Hún finnur sjálfkrafa hvaða stöð er verið að skoða á <code>vedur.is</code> og sprautar AI-gæðaspjaldinu beint ofan við veðurspátöfluna.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+              
+              {/* File 1: manifest.json */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <span className="mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--navy-primary)' }}>
+                    📄 manifest.json
+                  </span>
+                  <button 
+                    onClick={() => copyText(manifestCode, 'manifest')}
+                    style={{ background: 'none', border: 'none', color: 'var(--navy-primary)', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}
+                  >
+                    {copiedSnippet === 'manifest' ? <Check size={12} color="#059669" /> : <Copy size={12} />}
+                    {copiedSnippet === 'manifest' ? 'Afritað!' : 'Afrita kóða'}
+                  </button>
+                </div>
+                <pre style={{
+                  background: '#0f172a',
+                  color: '#e2e8f0',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.74rem',
+                  overflowX: 'auto',
+                  lineHeight: 1.45,
+                  maxHeight: '360px',
+                  fontFamily: 'var(--font-mono)'
+                }}>
+                  {manifestCode}
+                </pre>
+              </div>
+
+              {/* File 2: content.js */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <span className="mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--navy-primary)' }}>
+                    📄 content.js
+                  </span>
+                  <button 
+                    onClick={() => copyText(contentJsCode, 'contentjs')}
+                    style={{ background: 'none', border: 'none', color: 'var(--navy-primary)', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}
+                  >
+                    {copiedSnippet === 'contentjs' ? <Check size={12} color="#059669" /> : <Copy size={12} />}
+                    {copiedSnippet === 'contentjs' ? 'Afritað!' : 'Afrita kóða'}
+                  </button>
+                </div>
+                <pre style={{
+                  background: '#0f172a',
+                  color: '#a7f3d0',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.74rem',
+                  overflowX: 'auto',
+                  lineHeight: 1.45,
+                  maxHeight: '360px',
+                  fontFamily: 'var(--font-mono)'
+                }}>
+                  {contentJsCode}
+                </pre>
+              </div>
+            </div>
+
+            {/* Step-by-Step Instructions */}
+            <div style={{ marginTop: '1.5rem', background: '#f8fafc', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--navy-primary)', marginBottom: '0.5rem' }}>
+                Hvernig á að virkja viðbótina í Google Chrome:
+              </h4>
+              <ol style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.82rem', color: 'var(--text-main)', lineHeight: 1.8 }}>
+                <li>Búðu til nýja möppu á tölvunni þinni (t.d. <code>vedur-extension/</code>).</li>
+                <li>Búðu til tvær skrár í möppunni: <code>manifest.json</code> og <code>content.js</code> með kóðanum hér að ofan.</li>
+                <li>Opnaðu Chrome og sláðu inn <code>chrome://extensions</code> í veffangastikuna.</li>
+                <li>Kveiktu á <strong>Developer mode</strong> (Hönnuðarhamur) efst í hægra horninu.</li>
+                <li>Smelltu á <strong>Load unpacked</strong> hnappinn efst til vinstri og veldu möppuna.</li>
+                <li>Farðu nú inn á hvaða stöðvasíðu sem er á <strong>vedur.is</strong> (t.d. Reykjavík eða Akureyri) – AI-greiningarspjaldið mun birtast sjálfkrafa!</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+      )}
+
       {/* End Main Container */}
       </main>
 
@@ -1725,6 +2148,7 @@ export default function Home() {
               <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('aiForecast'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>AI-Leiðrétt Snjallspá</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('history'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>365 daga ársgreining</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('outlook'); }} style={{ color: '#e2e8f0', textDecoration: 'none' }}>Spástöðugleikamat</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setViewMode('apiDocs'); if (!apiTestOutput) runApiTest('reykjavik'); }} style={{ color: '#93c5fd', textDecoration: 'none' }}>🔌 API & Chrome Viðbót</a></li>
             </ul>
           </div>
 

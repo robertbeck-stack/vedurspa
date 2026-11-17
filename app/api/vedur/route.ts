@@ -236,15 +236,39 @@ const PATTERNS_ANALYSIS = {
   keyTakeaway: 'Langtímagögn sýna að veðurspáin er rétt í 9 af hverjum 10 tilfellum þegar loftmassinn er stöðugur (hæð eða jafnt frost). Hún klikkar nær eingöngu í tveimur tilfellum: 1) Þegar hitinn sveiflast um frostmark (0°C) og 2) Þegar djúpar hraðfara lægðir taka óvæntar stefnubreytingar.'
 };
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders
+  });
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const stationIdParam = searchParams.get('stationId') || '0';
-  const obsId = parseInt(stationIdParam, 10);
-  const isAllIceland = obsId === 0;
+  const stationParam = (searchParams.get('stationId') || searchParams.get('station_id') || searchParams.get('station') || searchParams.get('id') || searchParams.get('slug') || searchParams.get('name') || '0').toLowerCase().trim();
+  const viewMode = searchParams.get('view') || 'full';
 
-  const station = isAllIceland 
-    ? STATIONS[0] 
-    : (STATIONS.find(s => s.obsId === obsId) || STATIONS[1]);
+  const isAllIceland = stationParam === '0' || stationParam === 'all' || stationParam === 'allt-landid' || stationParam.includes('allt');
+
+  let station = STATIONS[0];
+  if (!isAllIceland) {
+    if (/^\d+$/.test(stationParam)) {
+      const num = parseInt(stationParam, 10);
+      station = STATIONS.find(s => s.obsId === num || s.fcId === num) || STATIONS[1];
+    } else {
+      station = STATIONS.find(s => 
+        s.name.toLowerCase() === stationParam || 
+        s.fullName.toLowerCase().includes(stationParam) ||
+        stationParam.includes(s.name.toLowerCase())
+      ) || STATIONS[1];
+    }
+  }
 
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
@@ -1041,7 +1065,7 @@ export async function GET(request: Request) {
     ]
   };
 
-  return NextResponse.json({
+  const payload: any = {
     status: 'ok',
     station,
     allStations: STATIONS,
@@ -1050,9 +1074,16 @@ export async function GET(request: Request) {
     upcomingForecast,
     aiCorrectedForecast,
     aiBacktest,
-    historicalData: HISTORICAL_DATA,
-    monthlyStats: MONTHLY_STATS,
     patternsAnalysis: PATTERNS_ANALYSIS
+  };
+
+  if (viewMode !== 'compact') {
+    payload.historicalData = HISTORICAL_DATA;
+    payload.monthlyStats = MONTHLY_STATS;
+  }
+
+  return NextResponse.json(payload, {
+    headers: corsHeaders
   });
 }
 
