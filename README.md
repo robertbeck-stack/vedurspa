@@ -47,3 +47,6 @@ Opnaðu síðan [http://localhost:3000](http://localhost:3000) í vafranum.
 Öll veðurgögn eru sótt frá [Veðurstofu Íslands](https://www.vedur.is):
 - Veðurspár: `https://xmlweather.vedur.is`
 - Veðurathuganir (AWS): `https://api.vedur.is/weather`
+
+
+<!-- vercel-trigger: 1794921045 -->
