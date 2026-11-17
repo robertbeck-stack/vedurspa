@@ -1406,7 +1406,7 @@ export default function Home() {
                       Sérstök staðháttagreining fyrir {activeStation.fullName}:
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      {activeStation.obsId === 1 && 'Höfuðborgarsvæðið: Borgarhitahólmur vs. jaðarsvæði, fallbylgjur við Kjalarnes (+10 m/s hviður) og Hellisheiðarslydda.'}
+                      {activeStation.obsId === 1 && 'Höfuðborgarsvæðið: Hitamunur borgar og úthverfa, fallbylgjur við Kjalarnes (+10 m/s hviður) og Hellisheiðarslydda.'}
                       {[3471, 3433, 3696, 3317].includes(activeStation.obsId) && 'Norðurland: Hitahvarfakuldapollur í logni (-4.8°C meira frost), Tröllaskagaél og Föhn-hitabylgjur í suðanátt.'}
                       {[6100, 6015, 6300, 5544].includes(activeStation.obsId) && 'Suðurland & Öræfi: Öræfa- og Eyjafjallahviður (+14 m/s fallbylgjur), sandfok á söndum og mikil jökulúrkoma.'}
                       {[2642, 2644].includes(activeStation.obsId) && 'Vestfirðir: Fjarðarrásun í Ísafjarðardjúpi, krapaslydda á fjallvegum og snjóflóðaveður.'}

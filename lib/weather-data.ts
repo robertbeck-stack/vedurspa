@@ -144,7 +144,7 @@ export function getStationSpecificAiForecast(st: StationMeta, baseDate: Date = n
         ai: { temp: -2.0, wind: 4, gust: 8, weather: 'Heiðskírt, -2°C í borginni en -4.5°C í Heiðmörk', icon: '❄️' },
         diffs: { tempDiff: -1.0, windDiff: -1, gustDiff: -1 },
         corrections: [
-          'Borgarhitahólmur vs. jaðarsvæði: Líkan vanmetur geislunarkælingu í Heiðmörk og Mosfellsdal um 2°C.',
+          'Borgarhiti vs. næturkæling: Líkan vanmetur næturfrost og kælingu í Heiðmörk og Mosfellsdal um 2°C.',
           'Vindur stilltur í lægðum borgarlandsins.'
         ],
         aiAdvantage: 'Kemur í veg fyrir óvænta hálku í úthverfum og á stofnbrautum snemma morguns.',
