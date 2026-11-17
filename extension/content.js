@@ -1,54 +1,184 @@
 // =========================================================================
 // VEÐURVAKTIN AI – CHROME EXTENSION CONTENT SCRIPT
-// Keyrir sjálfkrafa á vefsíðu vedur.is og sprautar AI-veðurgreiningu inn
+// Fellur 100% inn í snið vedur.is og sprautar AI-upplýsingum undir hvern dag
 // =========================================================================
 
 (function initVedurvaktin() {
-  let lastInjectedKey = '';
+  let cachedData = null;
+  let cachedKey = '';
   let isFetching = false;
 
+  // Hreinsa gamla spjaldið ef það situr í tækjastikunni
+  function removeLegacyWidget() {
+    const oldContainer = document.getElementById('vedurvaktin-ext-container');
+    if (oldContainer) oldContainer.remove();
+    const oldWidget = document.getElementById('vedurvaktin-ext-widget');
+    if (oldWidget && !oldWidget.classList.contains('vedurvaktin-native-keep')) {
+      oldWidget.remove();
+    }
+  }
+
+  // Sprauta AI upplýsingum undir hvern dag í sniði vedur.is
+  function injectUnderDays(data) {
+    if (!data || !data.aiForecastMultiDay || !data.aiForecastMultiDay.length) return;
+
+    // 1. TOP STATUS BAR (Heildarstöðustika efst – fellur fullkomlega inn í síðuna)
+    if (!document.getElementById('vedurvaktin-top-status')) {
+      const topTarget = 
+        document.querySelector('h3') || 
+        document.querySelector('#readContentWeatherDetails') || 
+        document.querySelector('main');
+
+      if (topTarget) {
+        const topBar = document.createElement('div');
+        topBar.id = 'vedurvaktin-top-status';
+        topBar.style.cssText = 'width: 100%; box-sizing: border-box; margin: 10px 0 16px 0; background: #ffffff; border: 1px solid #cbd5e1; border-left: 4px solid #0f4678; border-radius: 6px; padding: 8px 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; font-family: inherit; font-size: 12px; color: #1e293b; box-shadow: 0 1px 4px rgba(15,70,120,0.05); clear: both;';
+        
+        const gradeColor = data.scorecard?.gradeColor || '#059669';
+        const score = data.scorecard?.overallAccuracy || 89;
+        const grade = data.scorecard?.grade || 'A';
+
+        topBar.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="background: #0f4678; color: #ffffff; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">AI VEÐURVAKTIN</span>
+            <strong style="color: #0f4678; font-size: 13px;">${data.station?.name || 'Reykjavík'} (${data.station?.region || 'Höfuðborgarsvæðið'})</strong>
+            <span style="font-size: 11px; color: #64748b;">AI-Leiðréttingar virkar undir hverjum degi í spánni hér að neðan</span>
+            <span style="background: ${gradeColor}18; color: ${gradeColor}; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid ${gradeColor}40;">
+              Spágæði: ${score}% (${grade})
+            </span>
+          </div>
+          <a href="https://vedurspa-eta.vercel.app" target="_blank" style="color: #0f4678; text-decoration: none; font-size: 11px; font-weight: 700; background: #eff6ff; padding: 3px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+            Opna Veðurvaktina ↗
+          </a>
+        `;
+
+        if (topTarget.matches('h3')) {
+          const wrapper = topTarget.closest('div') || topTarget;
+          wrapper.parentNode.insertBefore(topBar, wrapper);
+        } else {
+          topTarget.prepend(topBar);
+        }
+      }
+    }
+
+    // 2. UNDIR HVERN DAG Í TÖFLU ("Næstu dagar" yfirlit)
+    // Finnum öll h4 sem eru inni í töflu
+    const tableH4s = document.querySelectorAll('table td h4, table th h4');
+    tableH4s.forEach(h4 => {
+      const dayText = h4.textContent.trim().toLowerCase();
+      const dayData = data.aiForecastMultiDay.find(d => 
+        dayText.includes(d.dayOfWeek.toLowerCase()) || 
+        d.dayOfWeek.toLowerCase().includes(dayText)
+      );
+
+      if (!dayData) return;
+
+      const parentDiv = h4.closest('div');
+      if (parentDiv && !parentDiv.querySelector('.vedurvaktin-table-pill')) {
+        const pill = document.createElement('div');
+        pill.className = 'vedurvaktin-table-pill';
+        pill.style.cssText = 'margin-top: 6px; padding: 4px 8px; background: #f0f7ff; border: 1px solid #bfdbfe; border-left: 3px solid #0f4678; border-radius: 4px; font-size: 11px; line-height: 1.35; font-family: inherit; box-sizing: border-box; text-align: left;';
+
+        const tempDiffStr = dayData.diffs.tempDiff > 0 ? `+${dayData.diffs.tempDiff}°C` : `${dayData.diffs.tempDiff}°C`;
+        const tempBadgeBg = Math.abs(dayData.diffs.tempDiff) >= 2 ? '#fef2f2' : '#f0fdf4';
+        const tempBadgeCol = Math.abs(dayData.diffs.tempDiff) >= 2 ? '#b91c1c' : '#15803d';
+
+        pill.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+            <span style="background: #0f4678; color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px;">AI</span>
+            <strong style="color: #1e3a8a; font-size: 12px;">${dayData.ai.temp > 0 ? '+' : ''}${dayData.ai.temp}°C</strong>
+            <span style="color: #475569; font-size: 11px;">• ${dayData.ai.wind} m/s</span>
+            <span style="font-size: 9px; background: ${tempBadgeBg}; color: ${tempBadgeCol}; padding: 1px 4px; border-radius: 3px; font-weight: 700;">${tempDiffStr}</span>
+          </div>
+          <div style="font-size: 10px; color: #334155; margin-top: 2px;">
+            ${dayData.corrections[0]}
+          </div>
+        `;
+        parentDiv.appendChild(pill);
+      }
+
+      // Einnig: Bæta við AI hitagildi í hitadálkinn ("Lægsti / Hæsti hiti")
+      const tr = h4.closest('tr');
+      if (tr) {
+        const cells = tr.querySelectorAll('td');
+        // Í töflunni er hiti venjulega í dálki 5 (0-indexed)
+        if (cells.length >= 6 && !cells[5].querySelector('.vedurvaktin-cell-ai')) {
+          const aiTempNote = document.createElement('div');
+          aiTempNote.className = 'vedurvaktin-cell-ai';
+          aiTempNote.style.cssText = 'font-size: 11px; font-weight: 700; color: #1d4ed8; margin-top: 2px;';
+          aiTempNote.textContent = `AI: ${dayData.ai.temp > 0 ? '+' : ''}${dayData.ai.temp}°C`;
+          cells[5].appendChild(aiTempNote);
+        }
+      }
+    });
+
+    // 3. UNDIR HVERN DAG Í DAGSYFIRLITINU ("Næstu klst" sundurliðun)
+    const allH4s = document.querySelectorAll('h4');
+    allH4s.forEach(h4 => {
+      // Sleppa þeim sem eru inni í töflu (þau eru afgreidd í skrefi 2)
+      if (h4.closest('table')) return;
+
+      const txt = h4.textContent.trim().toLowerCase();
+      const dayData = data.aiForecastMultiDay.find(d => 
+        txt.includes(d.dayOfWeek.toLowerCase())
+      );
+
+      if (!dayData) return;
+
+      // Finna stað til að sprauta kortinu rétt undir dagsfyrirsögnina
+      const headerDiv = h4.closest('div');
+      if (!headerDiv) return;
+
+      const dayParent = headerDiv.parentElement;
+      if (!dayParent || dayParent.querySelector(`.vedurvaktin-accordion-${dayData.index}`)) return;
+
+      const card = document.createElement('div');
+      card.className = `vedurvaktin-accordion-card vedurvaktin-accordion-${dayData.index}`;
+      card.style.cssText = 'margin: 8px 0 14px 0; background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #0f4678; border-radius: 6px; padding: 10px 14px; font-family: inherit; font-size: 12px; color: #1e293b; box-shadow: 0 1px 4px rgba(15,70,120,0.04);';
+
+      card.innerHTML = dayData.accordionCardHtml || `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: #0f4678; color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px;">AI VEÐURVAKTIN</span>
+            <strong style="color: #0f4678; font-size: 12px;">AI-Leiðrétting (${dayData.dayOfWeek})</strong>
+          </div>
+          <span style="font-size: 10px; background: #eff6ff; color: #1d4ed8; font-weight: 700; padding: 1px 6px; border-radius: 3px;">
+            Öryggi: ${dayData.confidence}
+          </span>
+        </div>
+        <div style="font-size: 11px; color: #334155; line-height: 1.35; background: #f8fafc; padding: 5px 8px; border-radius: 4px; margin-bottom: 4px;">
+          <strong style="color: #0f4678;">Staðbundin innsýn:</strong> ${dayData.corrections[0]}
+        </div>
+      `;
+
+      if (headerDiv.nextSibling) {
+        dayParent.insertBefore(card, headerDiv.nextSibling);
+      } else {
+        dayParent.appendChild(card);
+      }
+    });
+  }
+
   async function checkAndInject() {
+    removeLegacyWidget();
+
     const currentUrl = window.location.href;
-    
-    // Finna hvort við séum á forsíðu eða stöðvasíðu (t.d. /spar/1/ eða /spar/3471/)
     const idMatch = currentUrl.match(/\/(\d{1,5})(\/|\?|#|$)/);
     const stationId = idMatch ? idMatch[1] : '';
     const pageTitle = document.title || '';
     const currentKey = `${currentUrl}|${stationId}|${pageTitle}`;
 
-    // Athuga hvort spjaldið sé þegar til staðar í DOM fyrir núverandi stöð
-    const existingWidget = document.getElementById('vedurvaktin-ext-widget');
-    if (existingWidget && lastInjectedKey === currentKey) {
+    // Ef við höfum nú þegar gögn fyrir þessa slóð/stöð, sprautum við í ný DOM-tök
+    if (cachedData && cachedKey === currentKey) {
+      injectUnderDays(cachedData);
       return;
     }
 
     if (isFetching) return;
-
-    // Finna heppilegan stað til að sprauta spjaldinu
-    // Á stöðvasíðum (/vedur/spar/1/ og /vedur/spar/3471/):
-    // 1. div[role="radiogroup"] (hnappastika fyrir dagana rétt fyrir ofan töfluna)
-    // 2. table (veðurtaflan sjálf)
-    // 3. h3 eða h4 fyrirsagnir
-    // Á forsíðu eða eldri síðum:
-    // 4. #page, main, .content
-    const target = 
-      document.querySelector('div[role="radiogroup"]') ||
-      document.querySelector('table') ||
-      document.querySelector('#readContentWeatherDetails') ||
-      document.querySelector('#page') ||
-      document.querySelector('main') ||
-      document.querySelector('.content') ||
-      document.querySelector('#__next');
-
-    if (!target) {
-      // Síðan er líklega enn að hlaðast í Next.js, bíðum eftir næsta tékki
-      return;
-    }
-
     isFetching = true;
+
     try {
-      console.log('[Veðurvaktin AI] Sæki AI-gögn fyrir:', currentUrl, 'Stöð:', stationId || pageTitle);
-      
+      console.log('[Veðurvaktin AI] Sæki gögn fyrir snið-samþættingu:', currentUrl);
       const apiUrl = `https://vedurspa-eta.vercel.app/api/extension?url=${encodeURIComponent(currentUrl)}&station=${encodeURIComponent(stationId)}&name=${encodeURIComponent(pageTitle)}`;
       const res = await fetch(apiUrl);
       if (!res.ok) {
@@ -57,97 +187,17 @@
       }
 
       const data = await res.json();
-      if (!data || !data.extensionHtml) {
+      if (!data) {
         isFetching = false;
         return;
       }
 
-      // Fjarlægja gamalt spjald ef það er til staðar
-      const old = document.getElementById('vedurvaktin-ext-container');
-      if (old) old.remove();
+      cachedData = data;
+      cachedKey = currentKey;
 
-      // Búa til nýjan kassa utan um spjaldið
-      const container = document.createElement('div');
-      container.id = 'vedurvaktin-ext-container';
-      container.style.maxWidth = '1120px';
-      container.style.margin = '16px auto';
-      container.style.padding = '0 12px';
-      container.style.boxSizing = 'border-box';
-      container.innerHTML = data.extensionHtml;
-
-      // Tengja smell-atburði (event listeners) beint fyrir dagaval / flipa
-      try {
-        const tabBtns = container.querySelectorAll('.vedurvaktin-day-tab');
-        const summaryCards = container.querySelectorAll('.vedurvaktin-summary-card');
-        const panels = container.querySelectorAll('.vedurvaktin-day-panel');
-
-        function selectDay(index) {
-          tabBtns.forEach((btn, i) => {
-            if (i === index) {
-              btn.style.background = '#0f4678';
-              btn.style.color = '#ffffff';
-              btn.style.borderColor = '#0f4678';
-              btn.style.fontWeight = '800';
-            } else {
-              btn.style.background = '#ffffff';
-              btn.style.color = '#475569';
-              btn.style.borderColor = '#cbd5e1';
-              btn.style.fontWeight = '600';
-            }
-          });
-
-          summaryCards.forEach((card, i) => {
-            if (i === index) {
-              card.style.borderColor = '#0f4678';
-              card.style.background = '#eff6ff';
-              card.style.boxShadow = '0 2px 6px rgba(15,70,120,0.15)';
-            } else {
-              card.style.borderColor = '#e2e8f0';
-              card.style.background = '#ffffff';
-              card.style.boxShadow = 'none';
-            }
-          });
-
-          panels.forEach((p, i) => {
-            p.style.display = i === index ? 'block' : 'none';
-          });
-        }
-
-        tabBtns.forEach((btn, idx) => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            selectDay(idx);
-          });
-        });
-
-        summaryCards.forEach((card, idx) => {
-          card.addEventListener('click', (e) => {
-            e.preventDefault();
-            selectDay(idx);
-          });
-        });
-      } catch (e) {
-        console.warn('[Veðurvaktin AI] Villa við að tengja flipa:', e);
-      }
-
-      // Sprauta fyrir ofan markstakið
-      let insertPoint = target;
-      if (target.matches('table')) {
-        insertPoint = target.closest('div') || target;
-      } else if (target.matches('div[role="radiogroup"]')) {
-        insertPoint = target.closest('div') || target;
-      }
-
-      if (insertPoint && insertPoint.parentNode) {
-        insertPoint.parentNode.insertBefore(container, insertPoint);
-        lastInjectedKey = currentKey;
-        console.log(`[Veðurvaktin AI] AI-veðurkorti sprautað inn fyrir ${data.station?.name || 'stöð'}!`);
-      } else if (document.body) {
-        document.body.prepend(container);
-        lastInjectedKey = currentKey;
-      }
+      injectUnderDays(data);
     } catch (err) {
-      console.error('[Veðurvaktin AI] Villa við að sækja eða sprauta spjaldi:', err);
+      console.error('[Veðurvaktin AI] Villa við að sækja eða sprauta gögnum:', err);
     } finally {
       isFetching = false;
     }
@@ -156,7 +206,7 @@
   // 1. Keyra strax
   checkAndInject();
 
-  // 2. Fylgjast með DOM breytingum (vegna þess að vedur.is notar Next.js sem hleður töflum ósamstillt)
+  // 2. Fylgjast með DOM breytingum (Next.js síðu- og töfluskipti)
   const observer = new MutationObserver(() => {
     checkAndInject();
   });
@@ -169,6 +219,7 @@
     });
   }
 
-  // 3. Reglulegt tékk á 600ms fresti (grípur öll SPA slóðaskipti og flakk milli stöðva á vedur.is)
+  // 3. Reglulegt tékk á 600ms fresti (fylgist með flipaskiptum "Næstu klst" vs "Næstu dagar")
   setInterval(checkAndInject, 600);
 })();
+

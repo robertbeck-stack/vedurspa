@@ -51,15 +51,87 @@ export async function GET(request: Request) {
     const dayOfWeek = isNaN(d.getTime()) ? '' : weekdaysLong[d.getDay()];
     const dayOfWeekShort = isNaN(d.getTime()) ? '' : weekdaysShort[d.getDay()];
     const displayDate = day.dateStr.includes('-') ? day.dateStr.slice(5).replace('-', '/') : day.dateStr;
+    const tempDiffStr = day.diffs.tempDiff > 0 ? `+${day.diffs.tempDiff}°C` : `${day.diffs.tempDiff}°C`;
+    const tempBadgeBg = Math.abs(day.diffs.tempDiff) >= 2 ? '#fef2f2' : '#f0fdf4';
+    const tempBadgeCol = Math.abs(day.diffs.tempDiff) >= 2 ? '#b91c1c' : '#15803d';
+
+    const tableBadgeHtml = `
+<div class="vedurvaktin-table-pill" style="margin-top: 6px; padding: 4px 8px; background: #f0f7ff; border: 1px solid #bfdbfe; border-left: 3px solid #0f4678; border-radius: 4px; font-size: 11px; line-height: 1.35; font-family: inherit; box-sizing: border-box; text-align: left;">
+  <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+    <span style="background: #0f4678; color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px;">AI</span>
+    <strong style="color: #1e3a8a; font-size: 12px;">${day.ai.temp > 0 ? '+' : ''}${day.ai.temp}°C</strong>
+    <span style="color: #475569; font-size: 11px;">• ${day.ai.wind} m/s</span>
+    <span style="font-size: 9px; background: ${tempBadgeBg}; color: ${tempBadgeCol}; padding: 1px 4px; border-radius: 3px; font-weight: 700;">${tempDiffStr}</span>
+  </div>
+  <div style="font-size: 10px; color: #334155; margin-top: 2px;">
+    ${day.corrections[0]}
+  </div>
+</div>
+`.trim();
+
+    const accordionCardHtml = `
+<div class="vedurvaktin-accordion-card" style="margin: 8px 0 14px 0; background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #0f4678; border-radius: 6px; padding: 10px 14px; font-family: inherit; font-size: 12px; color: #1e293b; box-shadow: 0 1px 4px rgba(15,70,120,0.04);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="background: #0f4678; color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px;">AI VEÐURVAKTIN</span>
+      <strong style="color: #0f4678; font-size: 12px;">AI-Leiðrétting fyrir ${dayOfWeek} (${day.dayName})</strong>
+    </div>
+    <span style="font-size: 10px; background: #eff6ff; color: #1d4ed8; font-weight: 700; padding: 1px 6px; border-radius: 3px; border: 1px solid #bfdbfe;">
+      Öryggi: ${day.confidence}
+    </span>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 6px;">
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px 10px;">
+      <div style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">Líkan (Hrá tölvuspá)</div>
+      <div style="font-size: 14px; font-weight: 800; color: #334155; margin-top: 2px;">
+        ${day.raw.icon} ${day.raw.temp > 0 ? '+' : ''}${day.raw.temp}°C • ${day.raw.wind} m/s
+      </div>
+      <div style="font-size: 10px; color: #64748b;">${day.raw.weather} (Hviður: ${day.raw.gust} m/s)</div>
+    </div>
+    <div style="background: #f0f7ff; border: 1.5px solid #3b82f6; border-radius: 4px; padding: 6px 10px;">
+      <div style="font-size: 9px; font-weight: 800; color: #1d4ed8; text-transform: uppercase;">AI-Leiðrétt Snjallspá</div>
+      <div style="font-size: 14px; font-weight: 800; color: #1e3a8a; margin-top: 2px;">
+        ${day.ai.icon} ${day.ai.temp > 0 ? '+' : ''}${day.ai.temp}°C • ${day.ai.wind} m/s
+      </div>
+      <div style="font-size: 10px; color: #1e40af; font-weight: 600;">${day.ai.weather}</div>
+    </div>
+  </div>
+  <div style="font-size: 11px; color: #334155; line-height: 1.35; background: #f8fafc; padding: 5px 8px; border-radius: 4px; margin-bottom: 4px;">
+    <strong style="color: #0f4678;">Staðbundin eðlisfræðileg greining:</strong> ${day.corrections[0]}
+  </div>
+  <div style="font-size: 10px; color: #047857;">
+    <strong>Ávinningur:</strong> ${day.aiAdvantage}
+  </div>
+</div>
+`.trim();
+
     return {
       ...day,
       index: idx,
       dayOfWeek,
       dayOfWeekShort,
       displayDate,
-      fullTitle: `${dayOfWeek ? dayOfWeek + ' – ' : ''}${day.dayName}`
+      fullTitle: `${dayOfWeek ? dayOfWeek + ' – ' : ''}${day.dayName}`,
+      tableBadgeHtml,
+      accordionCardHtml
     };
   });
+
+  const topStatusHtml = `
+<div id="vedurvaktin-top-status" style="width: 100%; box-sizing: border-box; margin: 10px 0 16px 0; background: #ffffff; border: 1px solid #cbd5e1; border-left: 4px solid #0f4678; border-radius: 6px; padding: 8px 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; font-family: inherit; font-size: 12px; color: #1e293b; box-shadow: 0 1px 4px rgba(15,70,120,0.05); clear: both;">
+  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <span style="background: #0f4678; color: #ffffff; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">AI VEÐURVAKTIN</span>
+    <strong style="color: #0f4678; font-size: 13px;">${station.name} (${station.region})</strong>
+    <span style="font-size: 11px; color: #64748b;">AI-Leiðréttingar virkar undir hverjum degi hér að neðan</span>
+    <span style="background: ${gradeColor}18; color: ${gradeColor}; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid ${gradeColor}40;">
+      Spágæði: ${score}% (${grade})
+    </span>
+  </div>
+  <a href="https://vedurspa-eta.vercel.app" target="_blank" style="color: #0f4678; text-decoration: none; font-size: 11px; font-weight: 700; background: #eff6ff; padding: 3px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+    Opna Veðurvaktina ↗
+  </a>
+</div>
+`.trim();
 
   // Construct ready-to-inject multi-day HTML widget for Chrome Extension
   const extensionHtml = `
@@ -255,6 +327,7 @@ export async function GET(request: Request) {
       confidence: tomorrow.confidence
     },
     aiForecastMultiDay: formattedDays,
+    topStatusHtml,
     extensionHtml
   }, {
     headers: corsHeaders
