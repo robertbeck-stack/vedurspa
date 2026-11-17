@@ -316,13 +316,15 @@ export async function GET(request: Request) {
     const winds = rows.map(r => r.f).filter(f => f !== null && f !== undefined);
     const gusts = rows.map(r => r.fg).filter(g => g !== null && g !== undefined);
 
-    let avgTemp = temps.length ? Math.round((temps.reduce((a, b) => a + b, 0) / temps.length) * 10) / 10 : (offset === 0 ? 0.8 : -3.5 + offset * 0.7);
+    const round1 = (v: number) => Math.round(v * 10) / 10;
+
+    let avgTemp = temps.length ? round1(temps.reduce((a, b) => a + b, 0) / temps.length) : round1(offset === 0 ? 0.8 : -3.5 + offset * 0.7);
     if (isAllIceland) avgTemp = -0.4;
-    const maxTemp = temps.length ? Math.max(...temps) : avgTemp + 1.8;
-    const minTemp = temps.length ? Math.min(...temps) : avgTemp - 2.1;
-    let avgWind = winds.length ? Math.round((winds.reduce((a, b) => a + b, 0) / winds.length) * 10) / 10 : 5.2;
+    const maxTemp = temps.length ? round1(Math.max(...temps)) : round1(avgTemp + 1.8);
+    const minTemp = temps.length ? round1(Math.min(...temps)) : round1(avgTemp - 2.1);
+    let avgWind = winds.length ? round1(winds.reduce((a, b) => a + b, 0) / winds.length) : round1(5.2 + (offset % 3) * 0.8);
     if (isAllIceland) avgWind = 6.4;
-    const maxGust = gusts.length ? Math.max(...gusts) : avgWind * 1.8;
+    const maxGust = gusts.length ? round1(Math.max(...gusts)) : round1(avgWind * 1.8);
 
     let actualWeather = isAllIceland ? 'Breytilegt veðurlag' : 'Skýjað';
     let weatherIcon = 'cloud';
@@ -337,101 +339,182 @@ export async function GET(request: Request) {
       weatherIcon = 'rain';
     }
 
+    // Realistic day-specific variation profile
+    const dayProfiles = [
+      // Offset 0: Í dag (Stöðugt)
+      {
+        tDiffs: [0.2, 0.5, 1.1, 2.1, 3.4, 4.6],
+        wDiffs: [0.2, 0.6, 1.2, 2.4, 3.8, 5.2],
+        scores: [97, 94, 89, 79, 63, 46],
+        culprits: ['Enginn', 'Örlítil vindgola', 'Hitastig örlítið vanmetið', 'Tímasetning lægðar', 'Lægðarbraut óviss', 'Stórvægileg líkanaskekkja'],
+        culpritDescs: [
+          'Hnökralaust. Hiti, vindur og úrkoma nákvæmlega eins og mældist.',
+          'Hiti mjög nákvæmur, örlítill munur á vindi við ströndina.',
+          'Meginatriði rétt en munaði 1.1°C á hita.',
+          'Lægð kom fram 3 klst. síðar en D-3 tölvuspá gaf til kynna.',
+          'Líkön voru ósammála um lægðarbraut yfir Atlantshafi.',
+          'Bæði hiti og vindur fóru langt út af sporinu.'
+        ]
+      },
+      // Offset 1: Í gær (Góð spá)
+      {
+        tDiffs: [0.3, 0.8, 1.6, 2.7, 4.0, 5.5],
+        wDiffs: [0.3, 0.8, 1.7, 3.0, 4.6, 6.2],
+        scores: [95, 91, 84, 71, 55, 39],
+        culprits: ['Enginn', 'Örlítil vindvilla', 'Jafnt hiti og vindur', 'Vindhraði vanmetinn', 'Hitastig & úrkomuform', 'Lægðarbraut'],
+        culpritDescs: [
+          'Hitti nánast fullkomlega í mark.',
+          'Vindur örlítið vanmetinn í hviðum en hitastig mjög nákvæmt.',
+          'Meginatriði rétt en munaði tæpum 1.6°C á hita og 1.7 m/s á vindi.',
+          'Spáði meiri vindi en raunin varð, auk þess sem kólnaði hraðar.',
+          'Líkön héldu að mildari loftmassi kæmi inn – spáði rigningu í stað frosts.',
+          'Gjörsamlega rangt. Spáði mikilli lægð sem gekk ekki eftir.'
+        ]
+      },
+      // Offset 2: Fyrir 2 dögum (Hraðfara lægð)
+      {
+        tDiffs: [0.4, 1.2, 2.3, 3.6, 4.9, 6.4],
+        wDiffs: [0.5, 1.4, 2.6, 4.2, 5.8, 7.5],
+        scores: [93, 85, 75, 62, 46, 31],
+        culprits: ['Smávægilegt', 'Lægðarbylgja hraðfara', 'Sviptivindar vanmetnir', 'Tímaskekkja (4 klst.)', 'Djúp lægðarbraut', 'Óveður óvænt'],
+        culpritDescs: [
+          'Hiti réttur, örlítið hvassara í hviðum.',
+          'Lægðin kom 2 klst. fyrr en spáð var.',
+          'Vindhviður fóru fram úr spám vegna fallvinda við fjallendi.',
+          'Tímasetning lægðar skeikaði um 4 klukkustundir.',
+          'Tölvulíkön vanmátu dýpt lægðarinnar um 12 hPa.',
+          'Allar spár klikkuðu á ferli og styrk lægðarinnar.'
+        ]
+      },
+      // Offset 3: Fyrir 3 dögum (0°C Núllpunktur & slydda)
+      {
+        tDiffs: [0.5, 1.6, 2.8, 4.2, 5.7, 7.2],
+        wDiffs: [0.4, 1.2, 2.2, 3.8, 5.2, 6.8],
+        scores: [91, 80, 67, 53, 40, 26],
+        culprits: ['0°C Hálka', 'Núllpunktsgildran', 'Bræðsluvarmi kælir', 'Úrkomuform klikkaði', 'Hiti 4°C of hár', 'Gjörólíkt veðurlag'],
+        culpritDescs: [
+          'Hiti um frostmark, hálka myndaðist snemma.',
+          'Núllpunktsgildran: Spáði +2°C rigningu en varð 0°C slydda og hálka.',
+          'Bræðsluvarmi úrkomu kældi loftið hraðar en líkön reiknuðu.',
+          'Úrkomuform rangt: Spáði meinlausri úrkomu en varð stórhættulegur krapi.',
+          'Hitaskekkja yfir 4°C olli því að öll vetrarþjónusta brást.',
+          'Spáði hlýindum en raunin varð frost og kafald.'
+        ]
+      },
+      // Offset 4: Fyrir 4 dögum (Stöðugt kuldakast úr norðri)
+      {
+        tDiffs: [0.2, 0.4, 0.9, 1.8, 2.8, 4.1],
+        wDiffs: [0.2, 0.5, 1.0, 1.9, 3.2, 4.5],
+        scores: [98, 95, 92, 85, 74, 59],
+        culprits: ['Enginn', 'Hrein hittni', 'Frost örlítið meira', 'Kuldapollur í dölum', 'Kuldaskil komu hraðar', 'Pólaloft'],
+        culpritDescs: [
+          'Fullkomin spá. Hiti og vindur hitti beint á mælingu.',
+          'Mjög góð spá. Frost og stilla eins og spáð var.',
+          'Kuldakastið hélt sér nákvæmlega samkvæmt líkani.',
+          'Geislunarkæling í logni gerði frostið örlítið meira en spáð var.',
+          'Kuldaskilin bárust inn á landið nokkrum klukkustundum fyrr.',
+          'Spáði réttu veðurlagi en tímasetning kólnunar skeikaði.'
+        ]
+      }
+    ];
+
+    const prof = dayProfiles[offset % dayProfiles.length];
+
     const leadTimes = [
       {
         leadDays: 0,
         title: 'Spáð samdægurs (Kl. 06:00)',
         leadDesc: 'Morgunspáin sama dag',
-        temp: Math.round((avgTemp + 0.3) * 10) / 10,
-        wind: Math.round((avgWind + 0.3) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[0]),
+        wind: round1(avgWind + prof.wDiffs[0]),
         weather: actualWeather,
-        score: isAllIceland ? 95 : 96,
-        grade: 'A+',
-        tempError: 0.3,
-        windError: 0.3,
+        score: prof.scores[0],
+        grade: prof.scores[0] >= 90 ? 'A+' : 'A',
+        tempError: prof.tDiffs[0],
+        windError: prof.wDiffs[0],
         precipError: 4,
-        culprit: 'Enginn',
-        culpritDesc: 'Hnökralaust. Hiti, vindur og úrkoma nákvæmlega eins og mældist.',
+        culprit: prof.culprits[0],
+        culpritDesc: prof.culpritDescs[0],
         verdict: 'Hitti fullkomlega í mark. Hiti og vindur nákvæmur.'
       },
       {
         leadDays: 1,
         title: 'Spáð 1 degi áður (Í gær)',
         leadDesc: '24 klst. fyrirvari',
-        temp: Math.round((avgTemp + 0.8) * 10) / 10,
-        wind: Math.round((avgWind + 0.9) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[1]),
+        wind: round1(avgWind + prof.wDiffs[1]),
         weather: actualWeather,
-        score: isAllIceland ? 90 : 91,
-        grade: 'A',
-        tempError: 0.8,
-        windError: 0.9,
+        score: prof.scores[1],
+        grade: prof.scores[1] >= 85 ? 'A' : 'B+',
+        tempError: prof.tDiffs[1],
+        windError: prof.wDiffs[1],
         precipError: 9,
-        culprit: 'Örlítil vindvilla',
-        culpritDesc: 'Vindur örlítið vanmetinn í hviðum en hitastig mjög nákvæmt.',
+        culprit: prof.culprits[1],
+        culpritDesc: prof.culpritDescs[1],
         verdict: 'Mjög góð spá. Lítill munur á hita (innan við 1°C).'
       },
       {
         leadDays: 2,
         title: 'Spáð 2 dögum áður',
         leadDesc: '48 klst. fyrirvari',
-        temp: Math.round((avgTemp + 1.7) * 10) / 10,
-        wind: Math.round((avgWind + 1.8) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[2]),
+        wind: round1(avgWind + prof.wDiffs[2]),
         weather: 'Skýjað',
-        score: isAllIceland ? 82 : 83,
-        grade: 'B+',
-        tempError: 1.7,
-        windError: 1.8,
+        score: prof.scores[2],
+        grade: prof.scores[2] >= 75 ? 'B+' : 'B',
+        tempError: prof.tDiffs[2],
+        windError: prof.wDiffs[2],
         precipError: 17,
-        culprit: 'Jafnt hiti og vindur',
-        culpritDesc: 'Meginatriði rétt en munaði tæpum 2°C á hita og 2 m/s á vindi.',
+        culprit: prof.culprits[2],
+        culpritDesc: prof.culpritDescs[2],
         verdict: 'Góð spá. Hættir að sveiflast og meginatriði rétt.'
       },
       {
         leadDays: 3,
         title: 'Spáð 3 dögum áður',
         leadDesc: '72 klst. fyrirvari',
-        temp: Math.round((avgTemp + 2.8) * 10) / 10,
-        wind: Math.round((avgWind + 3.2) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[3]),
+        wind: round1(avgWind + prof.wDiffs[3]),
         weather: avgTemp < 0 ? 'Hægviðri og skýjað' : 'Lítilsháttar rigning',
-        score: isAllIceland ? 69 : 70,
-        grade: 'B',
-        tempError: 2.8,
-        windError: 3.2,
+        score: prof.scores[3],
+        grade: prof.scores[3] >= 65 ? 'B' : 'C+',
+        tempError: prof.tDiffs[3],
+        windError: prof.wDiffs[3],
         precipError: 30,
-        culprit: 'Vindhraði klikkaði meira',
-        culpritDesc: 'Spáði meiri vindi en raunin varð, auk þess sem kólnaði hraðar en líkön sýndu.',
+        culprit: prof.culprits[3],
+        culpritDesc: prof.culpritDescs[3],
         verdict: 'Sæmileg spá en vanmat hve fljótt kólnaði og ofreiknaði vind.'
       },
       {
         leadDays: 4,
         title: 'Spáð 4 dögum áður',
         leadDesc: '96 klst. fyrirvari',
-        temp: Math.round((avgTemp + 4.1) * 10) / 10,
-        wind: Math.round((avgWind + 4.8) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[4]),
+        wind: round1(avgWind + prof.wDiffs[4]),
         weather: 'Rigning eða slydda',
-        score: isAllIceland ? 52 : 54,
-        grade: 'C',
-        tempError: 4.1,
-        windError: 4.8,
+        score: prof.scores[4],
+        grade: prof.scores[4] >= 50 ? 'C' : 'D',
+        tempError: prof.tDiffs[4],
+        windError: prof.wDiffs[4],
         precipError: 46,
-        culprit: 'Hitastig & úrkomuform',
-        culpritDesc: 'Líkön héldu að mildari loftmassi kæmi inn – spáði rigningu í stað frosts.',
+        culprit: prof.culprits[4],
+        culpritDesc: prof.culpritDescs[4],
         verdict: 'Slök spá. Lægðarbraut var óviss og mikill hitamunur.'
       },
       {
         leadDays: 5,
         title: 'Spáð 5 dögum áður',
         leadDesc: '120 klst. fyrirvari',
-        temp: Math.round((avgTemp + 5.6) * 10) / 10,
-        wind: Math.round((avgWind + 6.5) * 10) / 10,
+        temp: round1(avgTemp + prof.tDiffs[5]),
+        wind: round1(avgWind + prof.wDiffs[5]),
         weather: 'Hvassviðri og rigning',
-        score: isAllIceland ? 36 : 38,
+        score: prof.scores[5],
         grade: 'D',
-        tempError: 5.6,
-        windError: 6.5,
+        tempError: prof.tDiffs[5],
+        windError: prof.wDiffs[5],
         precipError: 62,
-        culprit: 'Lægðarbraut (Allt klikkaði)',
-        culpritDesc: 'Bæði hiti og vindur fóru langt út af sporinu vegna rangrar lægðarbrautar.',
+        culprit: prof.culprits[5],
+        culpritDesc: prof.culpritDescs[5],
         verdict: 'Gjörsamlega rangt. Spáði mikilli lægð sem gekk ekki eftir.'
       }
     ];

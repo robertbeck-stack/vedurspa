@@ -126,6 +126,15 @@ export default function Home() {
     setTimeout(() => setCopiedSnippet(null), 2000);
   };
 
+  const formatNum = (val: number | null | undefined, decimals = 1, showPlus = false) => {
+    if (val === null || val === undefined || isNaN(val)) return '0.0';
+    const num = Number(val);
+    const rounded = Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+    const formatted = rounded.toFixed(decimals);
+    if (showPlus && rounded > 0) return `+${formatted}`;
+    return formatted;
+  };
+
   const fetchData = async (stationId: number) => {
     setLoading(true);
     try {
@@ -1083,10 +1092,10 @@ export default function Home() {
                       <Thermometer size={13} /> {activeStation.obsId === 0 ? 'Landsmeðalhiti' : 'Mældur hiti'}
                     </div>
                     <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--navy-primary)', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
-                      {currentDay.actual.avgTemp > 0 ? `+${currentDay.actual.avgTemp}` : currentDay.actual.avgTemp}°C
+                      {formatNum(currentDay.actual.avgTemp, 1, true)}°C
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
-                      Hám: {currentDay.actual.maxTemp}° / Lágm: {currentDay.actual.minTemp}°
+                      Hám: {formatNum(currentDay.actual.maxTemp, 1)}° / Lágm: {formatNum(currentDay.actual.minTemp, 1)}°
                     </div>
                   </div>
 
@@ -1095,10 +1104,10 @@ export default function Home() {
                       <Wind size={13} /> {activeStation.obsId === 0 ? 'Landsmeðalvindur' : 'Mældur vindur'}
                     </div>
                     <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--navy-primary)', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
-                      {currentDay.actual.avgWind} <span style={{ fontSize: '1rem', fontWeight: 600 }}>m/s</span>
+                      {formatNum(currentDay.actual.avgWind, 1)} <span style={{ fontSize: '1rem', fontWeight: 600 }}>m/s</span>
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>
-                      Mesta hviða: {currentDay.actual.maxGust.toFixed(1)} m/s
+                      Mesta hviða: {formatNum(currentDay.actual.maxGust, 1)} m/s
                     </div>
                   </div>
                 </div>
@@ -1243,7 +1252,7 @@ export default function Home() {
                         <div style={{ marginBottom: '0.4rem', paddingBottom: '0.4rem', borderBottom: '1px solid var(--border-color)' }}>
                           <span style={{ color: 'var(--text-dim)', fontSize: '0.68rem', display: 'block' }}>Hvað var spáð?</span>
                           <span style={{ fontWeight: 800, color: 'var(--navy-primary)', fontSize: '0.88rem', fontFamily: 'var(--font-mono)' }}>
-                            {lt.temp > 0 ? `+${lt.temp}` : lt.temp}°C • {lt.wind} m/s
+                            {formatNum(lt.temp, 1, true)}°C • {formatNum(lt.wind, 1)} m/s
                           </span>
                         </div>
 
@@ -1251,10 +1260,10 @@ export default function Home() {
                           <span style={{ color: 'var(--text-dim)', fontSize: '0.68rem', display: 'block' }}>Mismunur við raun:</span>
                           <div style={{ fontWeight: 700, fontSize: '0.76rem' }}>
                             <span style={{ color: Math.abs(tempDiff) > 2 ? 'var(--accent-rose)' : Math.abs(tempDiff) > 1 ? 'var(--accent-amber)' : 'var(--accent-emerald)', marginRight: '6px' }}>
-                              Hiti: {tempDiff > 0 ? `+${tempDiff}` : tempDiff}°C
+                              Hiti: {formatNum(tempDiff, 1, true)}°C
                             </span>
                             <span style={{ color: Math.abs(windDiff) > 2.5 ? 'var(--accent-rose)' : 'var(--text-muted)' }}>
-                              Vind: {windDiff > 0 ? `+${windDiff}` : windDiff}
+                              Vind: {formatNum(windDiff, 1, true)} m/s
                             </span>
                           </div>
                         </div>
